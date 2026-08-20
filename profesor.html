@@ -516,9 +516,10 @@
             <p class="leyenda">Puedes enviar a cualquier grupo, seas o no asesor.</p>
           </div>
           <div class="campo" id="campo_individual_destino" style="display:none">
-            <label for="codigo_alumno_notif">CÓDIGO DEL ALUMNO *</label>
-            <input type="text" id="codigo_alumno_notif" placeholder="EJ. CED-26-X7KM4P" maxlength="14">
-            <p class="leyenda">El aviso solo lo verá el padre de ese alumno.</p>
+            <label>SELECCIONA ALUMNOS DEL GRUPO *</label>
+            <div id="lista_alumnos_notif" class="leyenda" style="margin-bottom:8px">Primero elige el grupo arriba.</div>
+            <div id="contenedor_checks_notif" style="max-height:200px;overflow-y:auto;border:1px solid #cfdbe8;border-radius:8px;padding:8px;background:#fbfdff"></div>
+            <p class="leyenda">Marca los alumnos que recibirán el aviso.</p>
           </div>
           <p class="leyenda" style="margin-top:0;margin-bottom:10px">Elige el mensaje:</p>
           <div id="mensajes_notificacion"></div>
@@ -611,6 +612,7 @@
     let mensajeSeleccionado = '';
     let tipoEnvio = 'grupo'; // 'grupo' o 'individual'
     let califGrado = '';
+    let alumnosParaNotif = [];
     let califCampo = '';
     let califAlumnos = [];
     let notasPrevias = {};
@@ -783,11 +785,58 @@
           document.getElementById('campo_individual_destino').style.display = tipoEnvio === 'individual' ? 'block' : 'none';
           document.getElementById('aviso_notificacion').className = 'aviso';
           document.getElementById('aviso_notificacion').textContent = '';
+          if (tipoEnvio === 'individual') {
+            cargarAlumnosParaNotif();
+          }
         });
       });
-      document.getElementById('codigo_alumno_notif').addEventListener('input', function () {
-        this.value = this.value.toUpperCase();
+      document.getElementById('grado_notificacion').addEventListener('change', function () {
+        if (tipoEnvio === 'individual') {
+          cargarAlumnosParaNotif();
+        }
       });
+    }
+
+    function cargarAlumnosParaNotif() {
+      const contenedor = document.getElementById('contenedor_checks_notif');
+      const info = document.getElementById('lista_alumnos_notif');
+      const grado = document.getElementById('grado_notificacion').value;
+      if (!grado) {
+        info.textContent = 'Primero elige el grupo arriba.';
+        contenedor.innerHTML = '';
+        return;
+      }
+      info.textContent = 'CARGANDO ALUMNOS...';
+      contenedor.innerHTML = '';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'lista',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok || !resultado.alumnos || resultado.alumnos.length === 0) {
+            info.textContent = 'NO HAY ALUMNOS EN ' + grado + '.';
+            contenedor.innerHTML = '';
+            return;
+          }
+          alumnosParaNotif = resultado.alumnos;
+          info.textContent = 'ALUMNOS DE ' + grado + ' (' + alumnosParaNotif.length + '):';
+          contenedor.innerHTML = '';
+          alumnosParaNotif.forEach(function (alumno) {
+            const item = document.createElement('label');
+            item.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #eef3f8;cursor:pointer';
+            item.innerHTML =
+              '<input type="checkbox" value="' + alumno.codigo + '" style="width:18px;height:18px;accent-color:var(--color-primario)">' +
+              '<span style="font-size:13px;font-weight:700">' + alumno.nombre + '</span>' +
+              '<span style="font-size:11px;color:#7a8a9a;margin-left:auto">' + alumno.codigo + '</span>';
+            contenedor.appendChild(item);
+          });
+          info.textContent = 'ALUMNOS DE ' + grado + ' (' + alumnosParaNotif.length + ') — MARCA LOS QUE RECIBIRÁN EL AVISO:';
+        })
+        .catch(function () {
+          info.textContent = 'NO SE PUDIERON CARGAR LOS ALUMNOS.';
+          contenedor.innerHTML = '';
+        });
     }
 
     function pintarSelectoresGrado() {
@@ -1039,7 +1088,6 @@
     document.getElementById('btn_enviar_notificacion').addEventListener('click', function () {
       const aviso = document.getElementById('aviso_notificacion');
       let grado = '';
-      let codigo = '';
       if (tipoEnvio === 'grupo') {
         grado = document.getElementById('grado_notificacion').value;
         if (!grado) {
@@ -1051,13 +1099,13 @@
         grado = document.getElementById('grado_notificacion').value;
         if (!grado) {
           aviso.className = 'aviso error';
-          aviso.textContent = 'SELECCIONA UN GRUPO (PARA SABER QUÉ GRUPO ES EL ALUMNO).';
+          aviso.textContent = 'SELECCIONA UN GRUPO.';
           return;
         }
-        codigo = document.getElementById('codigo_alumno_notif').value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
-        if (!codigo || !/^CED-\d{2}-[A-Z0-9]{6}$/.test(codigo)) {
+        const checks = document.querySelectorAll('#contenedor_checks_notif input[type=checkbox]:checked');
+        if (checks.length === 0) {
           aviso.className = 'aviso error';
-          aviso.textContent = 'ESCRIBE UN CÓDIGO DE ALUMNO VÁLIDO (FORMATO: CED-26-XXXXXX).';
+          aviso.textContent = 'MARCA AL MENOS UN ALUMNO PARA ENVIAR EL AVISO.';
           return;
         }
       }
@@ -1069,39 +1117,58 @@
       const boton = document.getElementById('btn_enviar_notificacion');
       boton.disabled = true;
       boton.textContent = 'ENVIANDO...';
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          accion: 'notificacion',
-          maestro: maestroActual.nombre,
-          grado: grado,
-          mensaje: mensajeSeleccionado,
-          codigo: codigo
-        })
-      })
-        .then(function (respuesta) { return respuesta.json(); })
-        .then(function (resultado) {
-          if (resultado.ok) {
-            aviso.className = 'aviso exito';
-            aviso.textContent = 'AVISO ENVIADO A LOS PADRES DEL GRUPO ' + grado + '.';
-            mensajeSeleccionado = '';
-            document.querySelectorAll('#mensajes_notificacion .opcion').forEach(function (o) {
-              o.classList.remove('seleccionada');
-            });
-            cargarHistorial();
-          } else {
-            aviso.className = 'aviso error';
-            aviso.textContent = 'OCURRIÓ UN PROBLEMA AL ENVIAR. INTENTA DE NUEVO.';
-          }
-        })
-        .catch(function () {
-          aviso.className = 'aviso error';
-          aviso.textContent = 'SIN CONEXIÓN. NO SE ENVIÓ EL AVISO. VERIFICA TU INTERNET.';
-        })
-        .finally(function () {
-          boton.disabled = false;
-          boton.textContent = 'ENVIAR NOTIFICACIÓN';
+
+      const enviarA = function (codigoAlumno) {
+        return fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            accion: 'notificacion',
+            maestro: maestroActual.nombre,
+            grado: grado,
+            mensaje: mensajeSeleccionado,
+            codigo: codigoAlumno
+          })
+        }).then(function (r) { return r.json(); });
+      };
+
+      if (tipoEnvio === 'grupo') {
+        enviarA('').then(function (resultado) {
+          procesarResultado(resultado);
         });
+      } else {
+        const codigos = Array.from(document.querySelectorAll('#contenedor_checks_notif input[type=checkbox]:checked'))
+          .map(function (c) { return c.value; });
+        Promise.all(codigos.map(enviarA))
+          .then(function (resultados) {
+            const todosOk = resultados.every(function (r) { return r.ok; });
+            procesarResultado({ ok: todosOk });
+          })
+          .catch(function () {
+            procesarResultado({ ok: false });
+          });
+      }
+
+      function procesarResultado(resultado) {
+        if (resultado.ok) {
+          aviso.className = 'aviso exito';
+          aviso.textContent = tipoEnvio === 'grupo'
+            ? 'AVISO ENVIADO A LOS PADRES DEL GRUPO ' + grado + '.'
+            : 'AVISO ENVIADO A ' + document.querySelectorAll('#contenedor_checks_notif input[type=checkbox]:checked').length + ' PADRES DEL GRUPO ' + grado + '.';
+          mensajeSeleccionado = '';
+          document.querySelectorAll('#mensajes_notificacion .opcion').forEach(function (o) {
+            o.classList.remove('seleccionada');
+          });
+          document.querySelectorAll('#contenedor_checks_notif input[type=checkbox]').forEach(function (c) {
+            c.checked = false;
+          });
+          cargarHistorial();
+        } else {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'OCURRIÓ UN PROBLEMA AL ENVIAR. INTENTA DE NUEVO.';
+        }
+        boton.disabled = false;
+        boton.textContent = 'ENVIAR NOTIFICACIÓN';
+      }
     });
 
     function pintarCalificaciones() {
