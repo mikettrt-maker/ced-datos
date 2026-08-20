@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha de Datos del Alumno</title>
+  <style>
+    :root {
+      --color-primario: #4E93B8;
+      --color-secundario: #E06080;
+      --fondo: #F3F5F7;
+      --tarjeta: #ffffff;
+      --texto: #3A444D;
+      --error: #c0392b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, var(--color-primario), #2F77A0);
+      color: #fff;
+      text-align: center;
+      padding: 28px 16px 40px;
+    }
+    header .logo {
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      display: block;
+    }
+    header h1 { font-size: 22px; }
+    header p { opacity: .9; margin-top: 4px; font-size: 14px; }
+    main {
+      max-width: 560px;
+      margin: -24px auto 40px;
+      padding: 0 16px;
+    }
+    form.tarjeta {
+      background: var(--tarjeta);
+      border-radius: 14px;
+      padding: 22px 20px;
+      box-shadow: 0 6px 20px rgba(13, 74, 128, .15);
+    }
+    .seccion {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-primario);
+      border-bottom: 2px solid #D9E7EF;
+      padding-bottom: 8px;
+      margin: 26px 0 16px;
+    }
+    .seccion:first-of-type { margin-top: 0; }
+    .campo { margin-bottom: 16px; }
+    .campo label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .campo input,
+    .campo select,
+    .campo textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fbfdff;
+      text-transform: uppercase;
+    }
+    .campo input:focus,
+    .campo select:focus,
+    .campo textarea:focus {
+      outline: none;
+      border-color: var(--color-primario);
+      background: #fff;
+    }
+    .campo .opcional {
+      font-weight: 400;
+      font-size: 12px;
+      color: #7a8a9a;
+      text-transform: none;
+    }
+    .campo .ayuda {
+      font-weight: 400;
+      font-size: 12px;
+      color: #7a8a9a;
+      text-transform: none;
+      margin-top: 6px;
+    }
+    .dos-columnas {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+    @media (max-width: 460px) {
+      .dos-columnas { grid-template-columns: 1fr; }
+    }
+    .agregar-tel {
+      display: inline-block;
+      margin-top: 4px;
+      background: none;
+      border: 1.5px dashed var(--color-primario);
+      color: var(--color-primario);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: auto;
+      text-transform: none;
+    }
+    button.enviar {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background: var(--color-secundario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .aviso {
+      display: none;
+      text-align: center;
+      padding: 18px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    .aviso.exito { display: block; background: #FDE9EF; color: #B84A6A; border: 1.5px solid var(--color-secundario); }
+    .aviso.error { display: block; background: #fdecea; color: var(--error); border: 1.5px solid var(--error); }
+    .pie { text-align: center; font-size: 12px; color: #7a8a9a; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Logo de la escuela" class="logo">
+    <h1>Ficha de Datos del Alumno</h1>
+    <p>Ciclo Escolar 2026-2027</p>
+  </header>
+
+  <main>
+    <div id="aviso" class="aviso"></div>
+
+    <form id="ficha" class="tarjeta" autocomplete="on">
+
+      <div class="seccion">Datos del alumno</div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="alumno_ap">Apellido paterno del alumno *</label>
+          <input type="text" id="alumno_ap" name="alumno_ap" placeholder="APELLIDO PATERNO" required>
+        </div>
+        <div class="campo">
+          <label for="alumno_am">Apellido materno del alumno *</label>
+          <input type="text" id="alumno_am" name="alumno_am" placeholder="APELLIDO MATERNO" required>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="alumno_nombres">Nombre(s) del alumno *</label>
+        <input type="text" id="alumno_nombres" name="alumno_nombres" placeholder="NOMBRE(S)" required>
+      </div>
+
+      <div class="campo">
+        <label for="grado">Grado que cursará en el ciclo escolar *</label>
+        <select id="grado" name="grado" required>
+          <option value="">SELECCIONA EL GRADO...</option>
+          <option value="1° DE PRIMARIA">1° DE PRIMARIA</option>
+          <option value="2° DE PRIMARIA">2° DE PRIMARIA</option>
+          <option value="3° DE PRIMARIA">3° DE PRIMARIA</option>
+          <option value="4° DE PRIMARIA">4° DE PRIMARIA</option>
+          <option value="5° DE PRIMARIA">5° DE PRIMARIA</option>
+          <option value="6° DE PRIMARIA">6° DE PRIMARIA</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="nacimiento">Fecha de nacimiento * <span class="opcional">(escribe a mano: DD/MM/AAAA)</span></label>
+        <input type="text" id="nacimiento" name="nacimiento" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" required>
+      </div>
+
+      <div class="campo">
+        <label for="nacimiento_estado">Lugar de nacimiento (estado donde nació) *</label>
+        <select id="nacimiento_estado" name="nacimiento_estado">
+          <option value="">SELECCIONA EL ESTADO...</option>
+        </select>
+      </div>
+
+      <div class="seccion">Dirección</div>
+
+      <div class="campo">
+        <label for="estado">Estado *</label>
+        <select id="estado" name="estado">
+          <option value="">SELECCIONA EL ESTADO...</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="municipio">Municipio *</label>
+        <select id="municipio" name="municipio">
+          <option value="">PRIMERO ELIGE EL ESTADO</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="colonia">Colonia *</label>
+        <select id="colonia" name="colonia">
+          <option value="">PRIMERO ELIGE EL MUNICIPIO</option>
+        </select>
+      </div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="calle">Calle *</label>
+          <input type="text" id="calle" name="calle" placeholder="NOMBRE DE LA CALLE" required>
+        </div>
+        <div class="campo">
+          <label for="numero">Número <span class="opcional">(opcional)</span></label>
+          <input type="text" id="numero" name="numero" placeholder="EJ. 123" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="referencia">Referencia <span class="opcional">(opcional)</span></label>
+        <input type="text" id="referencia" name="referencia" placeholder="EJ. CASA ROJA, JUNTO A LA TIENDA">
+      </div>
+
+      <div class="campo">
+        <label for="adicional">Información adicional <span class="opcional">(enfermedades, alergias, etc.)</span></label>
+        <textarea id="adicional" name="adicional" rows="2" placeholder="EJ. ALERGIA AL POLEN, ASMA, DIABETES"></textarea>
+      </div>
+
+      <div class="seccion">Datos de la madre</div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="mama_ap">Apellido paterno de la mamá *</label>
+          <input type="text" id="mama_ap" name="mama_ap" placeholder="APELLIDO PATERNO" required>
+        </div>
+        <div class="campo">
+          <label for="mama_am">Apellido materno de la mamá *</label>
+          <input type="text" id="mama_am" name="mama_am" placeholder="APELLIDO MATERNO" required>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="mama_nombres">Nombre(s) de la mamá *</label>
+        <input type="text" id="mama_nombres" name="mama_nombres" placeholder="NOMBRE(S)" required>
+      </div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="mama_tel">Teléfono</label>
+          <input type="tel" id="mama_tel" name="mama_tel" placeholder="CASA, TRABAJO, ETC." inputmode="numeric">
+        </div>
+        <div class="campo">
+          <label for="mama_cel">Celular *</label>
+          <input type="tel" id="mama_cel" name="mama_cel" placeholder="EJ. 55 1234 5678" inputmode="numeric" required>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="mama_ocupacion">Ocupación</label>
+        <input type="text" id="mama_ocupacion" name="mama_ocupacion" placeholder="EJ. AMA DE CASA, ENFERMERA, COMERCIANTE">
+      </div>
+
+      <div class="seccion">Datos del padre</div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="papa_ap">Apellido paterno del papá *</label>
+          <input type="text" id="papa_ap" name="papa_ap" placeholder="APELLIDO PATERNO" required>
+        </div>
+        <div class="campo">
+          <label for="papa_am">Apellido materno del papá *</label>
+          <input type="text" id="papa_am" name="papa_am" placeholder="APELLIDO MATERNO" required>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="papa_nombres">Nombre(s) del papá *</label>
+        <input type="text" id="papa_nombres" name="papa_nombres" placeholder="NOMBRE(S)" required>
+      </div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="papa_tel">Teléfono</label>
+          <input type="tel" id="papa_tel" name="papa_tel" placeholder="CASA, TRABAJO, ETC." inputmode="numeric">
+        </div>
+        <div class="campo">
+          <label for="papa_cel">Celular *</label>
+          <input type="tel" id="papa_cel" name="papa_cel" placeholder="EJ. 55 1234 5678" inputmode="numeric" required>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="papa_ocupacion">Ocupación</label>
+        <input type="text" id="papa_ocupacion" name="papa_ocupacion" placeholder="EJ. INGENIERO, ALBAÑIL, CHOFER">
+      </div>
+
+      <div class="seccion">Contacto adicional (en caso de no localizar a los padres)</div>
+
+      <div class="dos-columnas">
+        <div class="campo">
+          <label for="emergencia_ap">Apellido paterno</label>
+          <input type="text" id="emergencia_ap" name="emergencia_ap" placeholder="APELLIDO PATERNO">
+        </div>
+        <div class="campo">
+          <label for="emergencia_am">Apellido materno</label>
+          <input type="text" id="emergencia_am" name="emergencia_am" placeholder="APELLIDO MATERNO">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="emergencia_nombres">Nombre(s)</label>
+        <input type="text" id="emergencia_nombres" name="emergencia_nombres" placeholder="NOMBRE(S)">
+      </div>
+
+      <div class="campo">
+        <label for="emergencia_parentesco">Parentesco</label>
+        <select id="emergencia_parentesco" name="emergencia_parentesco">
+          <option value="">SELECCIONA...</option>
+          <option value="ABUELO(A)">ABUELO(A)</option>
+          <option value="TÍO(A)">TÍO(A)</option>
+          <option value="HERMANO(A)">HERMANO(A)</option>
+          <option value="VECINO(A)">VECINO(A)</option>
+          <option value="PADRINO/MADRINA">PADRINO / MADRINA</option>
+          <option value="OTRO">OTRO</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Teléfonos de contacto (hasta 3)</label>
+        <div id="telefonos">
+          <input type="tel" id="emergencia_tel_1" name="emergencia_tel_1" placeholder="TELÉFONO 1" inputmode="numeric" style="margin-bottom:10px">
+        </div>
+        <button type="button" class="agregar-tel" id="agregar_tel">+ AGREGAR OTRO TELÉFONO</button>
+        <p class="ayuda">Se pueden registrar hasta 3 teléfonos.</p>
+      </div>
+
+      <button type="submit" class="enviar" id="enviar">Enviar ficha</button>
+    </form>
+
+    <p class="pie">Cualquier duda, acude a la dirección de la escuela.</p>
+  </main>
+
+  <script src="datos.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLp3ZNDnXMHRoqtEo3yNHo7lLPlH8IqozsEERUcoA-fShI-9JkrLhnc6ewrTm_Z8gmKQ/exec';
+
+    const formulario = document.getElementById('ficha');
+    const aviso = document.getElementById('aviso');
+    const boton = document.getElementById('enviar');
+
+    const selectNacimiento = document.getElementById('nacimiento_estado');
+    const selectEstado = document.getElementById('estado');
+    const selectMunicipio = document.getElementById('municipio');
+    const selectColonia = document.getElementById('colonia');
+
+    const MAYUSCULAS = 'input[type=text], input[type=tel], textarea';
+    document.querySelectorAll(MAYUSCULAS).forEach(function (campo) {
+      campo.addEventListener('input', function () {
+        campo.value = campo.value.toUpperCase();
+      });
+    });
+
+    const campoNacimiento = document.getElementById('nacimiento');
+    campoNacimiento.addEventListener('input', function () {
+      let v = campoNacimiento.value.replace(/\D/g, '').slice(0, 8);
+      if (v.length > 4) { v = v.slice(0, 4) + '/' + v.slice(4); }
+      if (v.length > 2) { v = v.slice(0, 2) + '/' + v.slice(2); }
+      campoNacimiento.value = v;
+    });
+
+    function fechaValida(texto) {
+      const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(texto);
+      if (!partes) return false;
+      const dia = Number(partes[1]);
+      const mes = Number(partes[2]);
+      const anio = Number(partes[3]);
+      if (mes < 1 || mes > 12 || anio < 1900 || anio > 2026) return false;
+      const diasPorMes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      let dias = diasPorMes[mes - 1];
+      if (mes === 2 && (anio % 4 === 0 && (anio % 100 !== 0 || anio % 400 === 0))) dias = 29;
+      return dia >= 1 && dia <= dias;
+    }
+
+    function llenarEstados() {
+      ESTADOS.forEach(function (estado) {
+        const opcion = document.createElement('option');
+        opcion.value = estado[0];
+        opcion.textContent = estado[1];
+        const copia = opcion.cloneNode(true);
+        selectNacimiento.appendChild(copia);
+        selectEstado.appendChild(opcion);
+      });
+    }
+
+    function municipiosDeEstado(estadoId) {
+      return MUNICIPIOS.filter(function (m) { return m[0] === estadoId; });
+    }
+
+    function opcionesMunicipios() {
+      selectMunicipio.innerHTML = '';
+      const inicial = document.createElement('option');
+      inicial.value = '';
+      inicial.textContent = 'SELECCIONA EL MUNICIPIO...';
+      selectMunicipio.appendChild(inicial);
+      if (!selectEstado.value) return;
+      municipiosDeEstado(selectEstado.value).forEach(function (municipio) {
+        const opcion = document.createElement('option');
+        opcion.value = municipio[1];
+        opcion.textContent = municipio[2];
+        selectMunicipio.appendChild(opcion);
+      });
+      selectMunicipio.disabled = false;
+    }
+
+    function opcionesColonias() {
+      selectColonia.innerHTML = '';
+      const inicial = document.createElement('option');
+      inicial.value = '';
+      inicial.textContent = 'SELECCIONA LA COLONIA...';
+      selectColonia.appendChild(inicial);
+      if (!selectEstado.value || !selectMunicipio.value) return;
+      const clave = selectEstado.value + '|' + selectMunicipio.value;
+      const colonias = COLONIAS[clave] || [];
+      colonias.forEach(function (nombre) {
+        const opcion = document.createElement('option');
+        opcion.value = nombre;
+        opcion.textContent = nombre;
+        selectColonia.appendChild(opcion);
+      });
+      selectColonia.disabled = false;
+    }
+
+    selectEstado.addEventListener('change', function () {
+      opcionesMunicipios();
+      selectColonia.innerHTML = '';
+      const inicial = document.createElement('option');
+      inicial.value = '';
+      inicial.textContent = 'PRIMERO ELIGE EL MUNICIPIO';
+      selectColonia.appendChild(inicial);
+      selectColonia.disabled = true;
+    });
+
+    selectMunicipio.addEventListener('change', opcionesColonias);
+
+    let telefonosAgregados = 1;
+    const limiteTelefonos = 3;
+
+    document.getElementById('agregar_tel').addEventListener('click', function () {
+      if (telefonosAgregados >= limiteTelefonos) return;
+      telefonosAgregados++;
+      const caja = document.createElement('input');
+      caja.type = 'tel';
+      caja.id = 'emergencia_tel_' + telefonosAgregados;
+      caja.name = 'emergencia_tel_' + telefonosAgregados;
+      caja.placeholder = 'TELÉFONO ' + telefonosAgregados;
+      caja.inputMode = 'numeric';
+      caja.style.marginBottom = '10px';
+      document.getElementById('telefonos').appendChild(caja);
+      caja.addEventListener('input', function () { caja.value = caja.value.toUpperCase(); });
+      if (telefonosAgregados >= limiteTelefonos) {
+        document.getElementById('agregar_tel').style.display = 'none';
+      }
+    });
+
+    function telefonosEmergencia() {
+      const numeros = [];
+      for (let i = 1; i <= limiteTelefonos; i++) {
+        const caja = document.getElementById('emergencia_tel_' + i);
+        if (caja && caja.value.trim()) {
+          numeros.push(caja.value.trim());
+        }
+      }
+      return {
+        tel_1: numeros[0] || '',
+        tel_2: numeros[1] || '',
+        tel_3: numeros[2] || ''
+      };
+    }
+
+    function generarCodigo() {
+      const letras = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let parte = '';
+      if (window.crypto && crypto.getRandomValues) {
+        const numeros = new Uint8Array(6);
+        crypto.getRandomValues(numeros);
+        numeros.forEach(function (n) { parte += letras[n % letras.length]; });
+      } else {
+        for (let i = 0; i < 6; i++) {
+          parte += letras[Math.floor(Math.random() * letras.length)];
+        }
+      }
+      const anio = String(new Date().getFullYear()).slice(-2);
+      return 'CED-' + anio + '-' + parte;
+    }
+
+    function mostrarConCodigo(codigo) {
+      aviso.className = 'aviso exito';
+      aviso.innerHTML =
+        '<strong>¡GRACIAS! TU FICHA SE GUARDÓ CORRECTAMENTE.</strong>' +
+        '<p style="margin:10px 0 6px">Código de tu alumno:</p>' +
+        '<p style="font-size:22px;font-weight:800;letter-spacing:1px;margin:0 0 12px" id="codigo_generado">' + codigo + '</p>' +
+        '<button type="button" id="copiar_codigo" style="background:var(--color-secundario);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer">COPIAR CÓDIGO</button>' +
+        '<p style="font-size:12px;opacity:.8;margin:10px 0 0">Guárdalo, te servirá para identificarlo más adelante.</p>';
+      document.getElementById('copiar_codigo').addEventListener('click', function () {
+        const texto = document.getElementById('codigo_generado').textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(texto).catch(function () {});
+        } else {
+          const temporal = document.createElement('textarea');
+          temporal.value = texto;
+          document.body.appendChild(temporal);
+          temporal.select();
+          document.execCommand('copy');
+          document.body.removeChild(temporal);
+        }
+        this.textContent = '¡COPIADO!';
+      });
+      aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    formulario.addEventListener('submit', async function (evento) {
+      evento.preventDefault();
+
+      if (!fechaValida(campoNacimiento.value.trim())) {
+        mostrar('error', 'Escribe la fecha de nacimiento en formato DD/MM/AAAA.');
+        campoNacimiento.focus();
+        return;
+      }
+
+      const codigo = generarCodigo();
+      const tels = telefonosEmergencia();
+      const datos = {
+        fecha: new Date().toLocaleString('es-MX'),
+        codigo: codigo,
+        alumno_ap: formulario.alumno_ap.value.trim(),
+        alumno_am: formulario.alumno_am.value.trim(),
+        alumno_nombres: formulario.alumno_nombres.value.trim(),
+        grado: formulario.grado.value,
+        nacimiento: campoNacimiento.value.trim(),
+        nacimiento_estado: selectNacimiento.options[selectNacimiento.selectedIndex].text,
+        estado: selectEstado.options[selectEstado.selectedIndex].text,
+        municipio: selectMunicipio.options[selectMunicipio.selectedIndex].text,
+        colonia: selectColonia.options[selectColonia.selectedIndex].text,
+        calle: formulario.calle.value.trim(),
+        numero: formulario.numero.value.trim(),
+        referencia: formulario.referencia.value.trim(),
+        adicional: formulario.adicional.value.trim(),
+        mama_ap: formulario.mama_ap.value.trim(),
+        mama_am: formulario.mama_am.value.trim(),
+        mama_nombres: formulario.mama_nombres.value.trim(),
+        mama_tel: formulario.mama_tel.value.trim(),
+        mama_cel: formulario.mama_cel.value.trim(),
+        mama_ocupacion: formulario.mama_ocupacion.value.trim(),
+        papa_ap: formulario.papa_ap.value.trim(),
+        papa_am: formulario.papa_am.value.trim(),
+        papa_nombres: formulario.papa_nombres.value.trim(),
+        papa_tel: formulario.papa_tel.value.trim(),
+        papa_cel: formulario.papa_cel.value.trim(),
+        papa_ocupacion: formulario.papa_ocupacion.value.trim(),
+        emergencia_ap: formulario.emergencia_ap.value.trim(),
+        emergencia_am: formulario.emergencia_am.value.trim(),
+        emergencia_nombres: formulario.emergencia_nombres.value.trim(),
+        emergencia_parentesco: formulario.emergencia_parentesco.value,
+        emergencia_tel_1: tels.tel_1,
+        emergencia_tel_2: tels.tel_2,
+        emergencia_tel_3: tels.tel_3
+      };
+
+      boton.disabled = true;
+      boton.textContent = 'ENVIANDO...';
+
+      try {
+        const respuesta = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(datos)
+        });
+        const resultado = await respuesta.json();
+        if (resultado.ok) {
+          mostrarConCodigo(codigo);
+          formulario.reset();
+          telefonosAgregados = 1;
+          document.getElementById('telefonos').innerHTML =
+            '<input type="tel" id="emergencia_tel_1" name="emergencia_tel_1" placeholder="TELÉFONO 1" inputmode="numeric" style="margin-bottom:10px">';
+          document.getElementById('agregar_tel').style.display = 'inline-block';
+          opcionesMunicipios();
+          opcionesColonias();
+          selectMunicipio.disabled = true;
+          selectColonia.disabled = true;
+        } else {
+          mostrar('error', 'OCURRIÓ UN PROBLEMA AL GUARDAR. INTENTA DE NUEVO.');
+        }
+      } catch (e) {
+        mostrar('error', 'NO HAY CONEXIÓN. VERIFICA TU INTERNET E INTÉNTALO DE NUEVO.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'ENVIAR FICHA';
+      }
+    });
+
+    function mostrar(tipo, texto) {
+      aviso.className = 'aviso ' + tipo;
+      aviso.textContent = texto;
+      aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    llenarEstados();
+    selectMunicipio.disabled = true;
+    selectColonia.disabled = true;
+  </script>
+</body>
+</html>

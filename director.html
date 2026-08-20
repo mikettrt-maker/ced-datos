@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CED - Portal del Director</title>
+  <style>
+    :root {
+      --color-primario: #4E93B8;
+      --color-secundario: #E06080;
+      --fondo: #F3F5F7;
+      --tarjeta: #ffffff;
+      --texto: #3A444D;
+      --error: #c0392b;
+      --ambar: #FF9060;
+      --rojo: #c0392b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+    .vista { display: none; }
+    .vista.activa { display: block; }
+
+    header.barra {
+      background: linear-gradient(135deg, #2F77A0, var(--color-secundario));
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    header.barra .izq {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    header.barra img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    header.barra h1 {
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    header.barra button {
+      background: rgba(255, 255, 255, .15);
+      color: #fff;
+      border: 1.5px solid rgba(255, 255, 255, .5);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    main { max-width: 760px; margin: 0 auto; padding: 16px; }
+
+    .login {
+      max-width: 420px;
+      margin: 60px auto;
+    }
+    .login .tarjeta {
+      background: var(--tarjeta);
+      border-radius: 14px;
+      padding: 28px 24px;
+      box-shadow: 0 6px 20px rgba(13, 74, 128, .15);
+      text-align: center;
+    }
+    .login img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      margin: 0 auto 14px;
+      display: block;
+    }
+    .login h2 { font-size: 19px; }
+    .login .campo { text-align: left; margin: 18px 0 14px; }
+    .login .campo label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .login .campo input {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      text-transform: uppercase;
+      background: #fbfdff;
+    }
+    .login .campo input:focus {
+      outline: none;
+      border-color: var(--color-primario);
+      background: #fff;
+    }
+    .login button {
+      width: 100%;
+      padding: 13px;
+      background: var(--color-secundario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .login .aviso {
+      display: none;
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: #fdecea;
+      color: var(--error);
+      border: 1.5px solid var(--error);
+    }
+    .login .aviso.visible { display: block; }
+
+    .pestanas {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .pestanas button {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 10px;
+      background: var(--tarjeta);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      color: var(--texto);
+    }
+    .pestanas button.activa {
+      background: var(--color-primario);
+      border-color: var(--color-primario);
+      color: #fff;
+    }
+
+    .tarjeta {
+      background: var(--tarjeta);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(13, 74, 128, .12);
+      margin-bottom: 16px;
+    }
+    .tarjeta h3 {
+      font-size: 15px;
+      color: var(--color-primario);
+      border-bottom: 2px solid #D9E7EF;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .campo { margin-bottom: 14px; }
+    .campo label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .campo select,
+    .campo input[type=date],
+    .campo input[type=text] {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fbfdff;
+      text-transform: uppercase;
+    }
+    .campo input[type=date] { text-transform: none; }
+
+    .guardar {
+      width: 100%;
+      padding: 14px;
+      margin-top: 6px;
+      background: var(--color-secundario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .guardar:disabled { opacity: .6; cursor: not-allowed; }
+    .secundario { background: var(--color-primario); }
+
+    .aviso {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .aviso.exito { display: block; background: #FDE9EF; color: #B84A6A; border: 1.5px solid var(--color-secundario); }
+    .aviso.error { display: block; background: #fdecea; color: var(--error); border: 1.5px solid var(--error); }
+    .aviso.info { display: block; background: #D9E7EF; color: var(--color-primario); border: 1.5px solid var(--color-primario); }
+
+    .leyenda {
+      font-size: 12px;
+      color: #7a8a9a;
+      margin-top: 10px;
+      line-height: 1.7;
+    }
+    .leyenda b { color: var(--texto); }
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin: 0 6px 6px 0;
+    }
+    .chip.azul { background: #D9E7EF; color: var(--color-primario); }
+    .chip.verde { background: #FDE9EF; color: #B84A6A; }
+    .chip.rojo { background: #fdecea; color: var(--error); }
+    .chip.ambar { background: #FFF0E6; color: var(--ambar); }
+    .chip.gris { background: #eaecef; color: #4b5563; }
+
+    .alumno {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #eef3f8;
+      flex-wrap: wrap;
+    }
+    .alumno .info { flex: 1; min-width: 160px; }
+    .alumno .info .codigo { font-size: 11px; color: #7a8a9a; }
+    .alumno .info .nombre { font-size: 13px; font-weight: 700; }
+    .ver-historial {
+      border: 1.5px solid var(--color-primario);
+      background: #fff;
+      color: var(--color-primario);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .historial {
+      display: none;
+      width: 100%;
+      background: #f6f9fb;
+      border: 1px solid #D9E7EF;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .historial.visible { display: block; }
+    .ficha .renglon {
+      display: flex;
+      gap: 8px;
+      padding: 6px 2px;
+      border-bottom: 1px dashed #e3ecf2;
+      font-size: 13px;
+    }
+    .ficha .renglon:last-child { border-bottom: none; }
+    .ficha .etiqueta { font-weight: 700; color: var(--color-primario); min-width: 160px; flex-shrink: 0; }
+    .ficha .valor { word-break: break-word; }
+
+    .tabla-historial {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .tabla-historial th {
+      background: #D9E7EF;
+      color: var(--color-primario);
+      padding: 6px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    .tabla-historial td {
+      padding: 6px;
+      border-bottom: 1px solid #eef3f8;
+      vertical-align: top;
+    }
+
+    .opcion {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      background: var(--tarjeta);
+      color: var(--texto);
+      user-select: none;
+    }
+    .opcion .marca {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #cfdbe8;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .opcion.seleccionada {
+      border-color: var(--color-primario);
+      background: #eef6fd;
+    }
+    .opcion.seleccionada .marca {
+      border-color: var(--color-primario);
+      background: var(--color-primario);
+    }
+    .opcion.seleccionada .marca::after {
+      content: '✓';
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .aviso-item {
+      background: #fff;
+      border: 1.5px solid #D9E7EF;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .aviso-item .mensaje { font-weight: 700; font-size: 13px; }
+    .aviso-item .meta { font-size: 11px; color: #7a8a9a; margin-top: 4px; }
+    .aviso-item .texto { flex: 1; min-width: 0; }
+    .aviso-item .fila { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .aviso-item .borrar {
+      border: 1.5px solid #f0c4c4;
+      background: #fff;
+      color: var(--error);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="barra">
+    <div class="izq">
+      <img src="logo.png" alt="Logo">
+      <h1 id="titulo_barra">PORTAL DE DIRECCIÓN</h1>
+    </div>
+    <button type="button" id="btn_salir">SALIR</button>
+  </header>
+
+  <div id="vista_login" class="vista login activa">
+    <div class="tarjeta">
+      <img src="logo.png" alt="Logo">
+      <h2>CÓDIGO DEL DIRECTOR</h2>
+      <div class="campo">
+        <label for="codigo_director">CÓDIGO *</label>
+        <input type="text" id="codigo_director" placeholder="EJ. CED-26-XXXXXX" maxlength="14">
+      </div>
+      <button type="button" id="btn_entrar">ENTRAR</button>
+      <div class="aviso" id="aviso_login">CÓDIGO INCORRECTO. VERIFICA CON DIRECCIÓN.</div>
+    </div>
+  </div>
+
+  <div id="vista_panel" class="vista">
+    <main>
+      <div class="pestanas">
+        <button type="button" id="tab_alumnos" class="activa">ALUMNOS</button>
+        <button type="button" id="tab_calificaciones">CALIFICACIONES</button>
+        <button type="button" id="tab_asistencia">ASISTENCIA</button>
+        <button type="button" id="tab_avisos">AVISOS</button>
+      </div>
+
+      <div id="panel_alumnos" class="vista activa">
+        <div class="tarjeta">
+          <h3>ALUMNOS INSCRITOS</h3>
+          <div class="campo">
+            <label for="grado_alumnos">FILTRAR POR GRUPO</label>
+            <select id="grado_alumnos"></select>
+          </div>
+          <button class="guardar secundario" id="btn_cargar_alumnos">CARGAR ALUMNOS</button>
+          <button class="guardar" id="btn_descargar_alumnos" style="margin-top:10px">DESCARGAR TODOS (EXCEL)</button>
+          <div class="aviso" id="aviso_alumnos"></div>
+          <div id="contenedor_alumnos"></div>
+        </div>
+      </div>
+
+      <div id="panel_calificaciones" class="vista">
+        <div class="tarjeta">
+          <h3>CALIFICACIONES DE LOS GRUPOS</h3>
+          <div class="campo">
+            <label for="grado_calif">GRUPO *</label>
+            <select id="grado_calif"></select>
+          </div>
+          <div class="campo">
+            <label>FILTRO DE FECHAS</label>
+            <div style="display:flex;gap:10px">
+              <div style="flex:1">
+                <label style="font-size:12px" for="calif_desde">DESDE</label>
+                <input type="date" id="calif_desde">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:12px" for="calif_hasta">HASTA</label>
+                <input type="date" id="calif_hasta">
+              </div>
+            </div>
+            <p class="leyenda">Deja las fechas vacías para ver todo el ciclo escolar.</p>
+          </div>
+          <button class="guardar secundario" id="btn_ver_calif">VER CALIFICACIONES</button>
+          <button class="guardar" id="btn_descargar_calif" style="margin-top:10px">DESCARGAR (EXCEL)</button>
+          <div class="aviso" id="aviso_calif"></div>
+          <div id="contenedor_calif"></div>
+        </div>
+      </div>
+
+      <div id="panel_asistencia" class="vista">
+        <div class="tarjeta">
+          <h3>ASISTENCIA DE LOS GRUPOS</h3>
+          <div class="campo">
+            <label for="grado_asist">GRUPO *</label>
+            <select id="grado_asist"></select>
+          </div>
+          <div class="campo">
+            <label>FILTRO DE FECHAS</label>
+            <div style="display:flex;gap:10px">
+              <div style="flex:1">
+                <label style="font-size:12px" for="asist_desde">DESDE</label>
+                <input type="date" id="asist_desde">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:12px" for="asist_hasta">HASTA</label>
+                <input type="date" id="asist_hasta">
+              </div>
+            </div>
+            <p class="leyenda">Deja las fechas vacías para ver todo el ciclo escolar.</p>
+          </div>
+          <button class="guardar secundario" id="btn_ver_asist">VER ASISTENCIA</button>
+          <button class="guardar" id="btn_descargar_asist" style="margin-top:10px">DESCARGAR (EXCEL)</button>
+          <div class="aviso" id="aviso_asist"></div>
+          <div id="resumen_asist"></div>
+          <div id="contenedor_asist"></div>
+        </div>
+      </div>
+
+      <div id="panel_avisos" class="vista">
+        <div class="tarjeta">
+          <h3>ENVIAR AVISO A LOS PADRES</h3>
+          <div class="campo">
+            <label for="grado_aviso">GRUPO DESTINO *</label>
+            <select id="grado_aviso"></select>
+          </div>
+          <p class="leyenda" style="margin-top:0;margin-bottom:10px">Elige el mensaje:</p>
+          <div id="mensajes_aviso"></div>
+          <button class="guardar" id="btn_enviar_aviso">ENVIAR NOTIFICACIÓN</button>
+          <div class="aviso" id="aviso_aviso"></div>
+        </div>
+        <div class="tarjeta">
+          <h3>ÚLTIMOS AVISOS ENVIADOS</h3>
+          <div id="historial_avisos"><p class="leyenda">Selecciona un grupo para ver sus avisos.</p></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="directores.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLp3ZNDnXMHRoqtEo3yNHo7lLPlH8IqozsEERUcoA-fShI-9JkrLhnc6ewrTm_Z8gmKQ/exec';
+    const CLAVE_SESION = 'ced_director';
+
+    const GRADOS = [
+      '1° DE PRIMARIA',
+      '2° DE PRIMARIA',
+      '3° DE PRIMARIA',
+      '4° DE PRIMARIA',
+      '5° DE PRIMARIA',
+      '6° DE PRIMARIA'
+    ];
+
+    const MENSAJES_NOTIFICACION = [
+      'MATERIAL SOLICITADO, ¡REVISA GOOGLE CLASSROOM!',
+      'MATERIAL PARA CLUB, REVISA GOOGLE CLASSROOM!',
+      'NO CUMPLIÓ CON LOS MATERIALES SOLICITADOS.',
+      'NO CUMPLIÓ CON LA TAREA',
+      'RECORDATORIO DE SEMANA DE PROYECTOS',
+      'RECORDATORIO DE SEMANA DE EVALUACIONES'
+    ];
+
+    const CAMPOS_FICHA = [
+      'Código del alumno', 'Alumno ap. paterno', 'Alumno ap. materno', 'Alumno nombre(s)',
+      'Grado', 'Fecha de nacimiento', 'Lugar de nacimiento', 'Estado', 'Municipio', 'Colonia',
+      'Calle', 'Número', 'Referencia', 'Información adicional',
+      'Mamá ap. paterno', 'Mamá ap. materno', 'Mamá nombre(s)', 'Mamá teléfono', 'Mamá celular', 'Mamá ocupación',
+      'Papá ap. paterno', 'Papá ap. materno', 'Papá nombre(s)', 'Papá teléfono', 'Papá celular', 'Papá ocupación',
+      'Emergencia ap. paterno', 'Emergencia ap. materno', 'Emergencia nombre(s)', 'Emergencia parentesco',
+      'Emergencia tel 1', 'Emergencia tel 2', 'Emergencia tel 3'
+    ];
+
+    let directorActual = null;
+    let alumnosTodos = [];
+    let mensajeSeleccionado = '';
+
+    const vistaLogin = document.getElementById('vista_login');
+    const vistaPanel = document.getElementById('vista_panel');
+    const campoCodigo = document.getElementById('codigo_director');
+
+    campoCodigo.addEventListener('input', function () {
+      campoCodigo.value = campoCodigo.value.toUpperCase();
+    });
+
+    function entrarComo(codigo) {
+      codigo = String(codigo || '').replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
+      const director = directorPorCodigo(codigo);
+      if (!director) {
+        document.getElementById('aviso_login').classList.add('visible');
+        return;
+      }
+      directorActual = director;
+      localStorage.setItem(CLAVE_SESION, director.codigo);
+      document.getElementById('aviso_login').classList.remove('visible');
+      document.getElementById('titulo_barra').textContent = 'PORTAL DE ' + director.nombre;
+      pintarSelectores();
+      vistaLogin.classList.remove('activa');
+      vistaPanel.classList.add('activa');
+      pintarMensajesAviso();
+      cargarHistorialAvisos();
+    }
+
+    document.getElementById('btn_entrar').addEventListener('click', function () {
+      entrarComo(campoCodigo.value.trim().toUpperCase());
+    });
+
+    campoCodigo.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        entrarComo(campoCodigo.value.trim().toUpperCase());
+      }
+    });
+
+    document.getElementById('btn_salir').addEventListener('click', function () {
+      localStorage.removeItem(CLAVE_SESION);
+      window.location.href = 'inicio.html';
+    });
+
+    function pintarSelectores() {
+      ['grado_alumnos', 'grado_calif', 'grado_asist', 'grado_aviso'].forEach(function (id) {
+        const select = document.getElementById(id);
+        select.innerHTML = '';
+        GRADOS.forEach(function (grado) {
+          const opcion = document.createElement('option');
+          opcion.value = grado;
+          opcion.textContent = grado;
+          select.appendChild(opcion);
+        });
+      });
+      const filtro = document.getElementById('grado_alumnos');
+      const todos = document.createElement('option');
+      todos.value = 'TODOS';
+      todos.textContent = 'TODOS LOS GRADOS';
+      filtro.insertBefore(todos, filtro.firstChild);
+      filtro.value = 'TODOS';
+    }
+
+    function cambiarPestana(cual) {
+      document.getElementById('tab_alumnos').classList.toggle('activa', cual === 'alumnos');
+      document.getElementById('tab_calificaciones').classList.toggle('activa', cual === 'calificaciones');
+      document.getElementById('tab_asistencia').classList.toggle('activa', cual === 'asistencia');
+      document.getElementById('tab_avisos').classList.toggle('activa', cual === 'avisos');
+      document.getElementById('panel_alumnos').classList.toggle('activa', cual === 'alumnos');
+      document.getElementById('panel_calificaciones').classList.toggle('activa', cual === 'calificaciones');
+      document.getElementById('panel_asistencia').classList.toggle('activa', cual === 'asistencia');
+      document.getElementById('panel_avisos').classList.toggle('activa', cual === 'avisos');
+    }
+
+    document.getElementById('tab_alumnos').addEventListener('click', function () {
+      cambiarPestana('alumnos');
+      cargarAlumnos();
+    });
+    document.getElementById('tab_calificaciones').addEventListener('click', function () {
+      cambiarPestana('calificaciones');
+      verCalificaciones();
+    });
+    document.getElementById('tab_asistencia').addEventListener('click', function () {
+      cambiarPestana('asistencia');
+      verAsistencia();
+    });
+    document.getElementById('tab_avisos').addEventListener('click', function () {
+      cambiarPestana('avisos');
+      cargarHistorialAvisos();
+    });
+
+    function fechaBonita(iso) {
+      const partes = String(iso || '').split('-');
+      if (partes.length !== 3) return String(iso || '');
+      const fecha = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      if (isNaN(fecha.getTime())) return String(iso || '');
+      const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+      return dias[fecha.getDay()] + ' ' + partes[2] + '-' + partes[1] + '-' + partes[0];
+    }
+
+    function claseEstado(estado) {
+      if (estado === 'ASISTIÓ') return 'verde';
+      if (estado === 'RETARDO') return 'ambar';
+      if (estado === 'FALTA JUSTIFICADA') return 'gris';
+      return 'rojo';
+    }
+
+    function nombreCompleto(datos) {
+      return [datos['Alumno ap. paterno'], datos['Alumno ap. materno'], datos['Alumno nombre(s)']]
+        .filter(Boolean).join(' ').trim();
+    }
+
+    document.getElementById('btn_cargar_alumnos').addEventListener('click', cargarAlumnos);
+
+    function cargarAlumnos() {
+      const contenedor = document.getElementById('contenedor_alumnos');
+      const aviso = document.getElementById('aviso_alumnos');
+      aviso.className = 'aviso info';
+      aviso.textContent = 'CARGANDO ALUMNOS...';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'alumnos_todos' }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          alumnosTodos = resultado.alumnos || [];
+          const filtro = document.getElementById('grado_alumnos').value;
+          const lista = filtro === 'TODOS'
+            ? alumnosTodos
+            : alumnosTodos.filter(function (a) { return String(a['Grado']) === filtro; });
+          if (lista.length === 0) {
+            aviso.className = 'aviso info';
+            aviso.textContent = 'NO HAY ALUMNOS REGISTRADOS' + (filtro === 'TODOS' ? '' : ' EN ' + filtro) + '.';
+            contenedor.innerHTML = '';
+            return;
+          }
+          aviso.className = 'aviso';
+          aviso.textContent = '';
+          contenedor.innerHTML = '';
+          lista.forEach(function (datos) {
+            const fila = document.createElement('div');
+            fila.className = 'alumno';
+            fila.innerHTML =
+              '<div class="info"><div class="codigo">' + datos['Código del alumno'] + '</div>' +
+              '<div class="nombre">' + nombreCompleto(datos) + '</div></div>' +
+              '<button type="button" class="ver-historial">VER FICHA</button>' +
+              '<div class="historial"></div>';
+            const boton = fila.querySelector('.ver-historial');
+            const detalle = fila.querySelector('.historial');
+            boton.addEventListener('click', function () {
+              if (detalle.classList.contains('visible')) {
+                detalle.classList.remove('visible');
+                boton.textContent = 'VER FICHA';
+                return;
+              }
+              detalle.classList.add('visible');
+              boton.textContent = 'OCULTAR FICHA';
+              let html = '<div class="ficha">';
+              CAMPOS_FICHA.forEach(function (campo) {
+                const valor = String(datos[campo] || '').trim();
+                if (!valor) return;
+                html += '<div class="renglon"><span class="etiqueta">' + campo + '</span>' +
+                  '<span class="valor">' + valor + '</span></div>';
+              });
+              html += '<div class="renglon"><span class="etiqueta">Fecha de registro</span>' +
+                '<span class="valor">' + String(datos['Fecha'] || '') + '</span></div>';
+              html += '</div>';
+              detalle.innerHTML = html;
+            });
+            contenedor.appendChild(fila);
+          });
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDIERON CARGAR LOS ALUMNOS. VERIFICA TU INTERNET.';
+          contenedor.innerHTML = '';
+        });
+    }
+
+    function celdaExcel(texto) {
+      return '<td>' + String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') + '</td>';
+    }
+
+    function descargarExcel(titulo, cabeceras, filas, nombreArchivo, avisoId) {
+      let html = '<tr>';
+      cabeceras.forEach(function (c) { html += '<th>' + c + '</th>'; });
+      html += '</tr>' + filas;
+      const tabla =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">' +
+        '<head><meta charset="utf-8"></head><body><table border="1">' +
+        html + '</table></body></html>';
+      const blob = new Blob(['\uFEFF' + tabla], { type: 'application/vnd.ms-excel;charset=utf-8' });
+      const enlace = document.createElement('a');
+      enlace.href = URL.createObjectURL(blob);
+      enlace.download = nombreArchivo;
+      document.body.appendChild(enlace);
+      enlace.click();
+      document.body.removeChild(enlace);
+      URL.revokeObjectURL(enlace.href);
+      const aviso = document.getElementById(avisoId);
+      aviso.className = 'aviso exito';
+      aviso.textContent = 'ARCHIVO DESCARGADO: ' + nombreArchivo + ' (' + filas.split('<tr>').length - 1 + ' filas).';
+    }
+
+    document.getElementById('btn_descargar_alumnos').addEventListener('click', function () {
+      if (alumnosTodos.length === 0) {
+        cargarAlumnos();
+        return;
+      }
+      let filas = '';
+      alumnosTodos.forEach(function (datos) {
+        let fila = '<tr>';
+        CAMPOS_FICHA.forEach(function (campo) {
+          fila += celdaExcel(datos[campo]);
+        });
+        fila += '</tr>';
+        filas += fila;
+      });
+      descargarExcel('FICHA DE ALUMNOS', CAMPOS_FICHA, filas, 'ALUMNOS_INSCRITOS.xls', 'aviso_alumnos');
+    });
+
+    function filtrar(lista, desde, hasta) {
+      let filtrada = lista;
+      if (desde) {
+        filtrada = filtrada.filter(function (r) { return r.fecha >= desde; });
+      }
+      if (hasta) {
+        filtrada = filtrada.filter(function (r) { return r.fecha <= hasta; });
+      }
+      return filtrada;
+    }
+
+    document.getElementById('btn_ver_calif').addEventListener('click', verCalificaciones);
+
+    function verCalificaciones() {
+      const contenedor = document.getElementById('contenedor_calif');
+      const aviso = document.getElementById('aviso_calif');
+      const grado = document.getElementById('grado_calif').value;
+      const desde = document.getElementById('calif_desde').value;
+      const hasta = document.getElementById('calif_hasta').value;
+      aviso.className = 'aviso info';
+      aviso.textContent = 'CARGANDO CALIFICACIONES...';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'calificaciones_grado',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = filtrar(resultado.calificaciones || [], desde, hasta);
+          if (lista.length === 0) {
+            aviso.className = 'aviso info';
+            aviso.textContent = 'NO HAY CALIFICACIONES EN EL RANGO SELECCIONADO.';
+            contenedor.innerHTML = '';
+            return;
+          }
+          aviso.className = 'aviso';
+          aviso.textContent = '';
+          let filas = '';
+          let suma = 0;
+          lista.forEach(function (c) {
+            suma += Number(c.nota);
+            filas += '<tr>' +
+              '<td>' + fechaBonita(c.fecha) + '</td>' +
+              '<td><b>' + c.codigo + '</b><br>' + c.nombre + '</td>' +
+              '<td>' + c.campo + '</td>' +
+              '<td style="font-size:15px;font-weight:700;color:var(--color-secundario)">' + c.nota + '</td>' +
+              '<td>' + c.maestro + '</td></tr>';
+          });
+          const promedio = (suma / lista.length).toFixed(1);
+          contenedor.innerHTML =
+            '<p class="leyenda" style="margin:0"><b>' + lista.length + '</b> calificaciones — PROMEDIO DEL GRUPO: <b>' + promedio + '</b></p>' +
+            '<table class="tabla-historial">' +
+            '<tr><th>FECHA</th><th>ALUMNO</th><th>CAMPO</th><th>NOTA</th><th>PROF.</th></tr>' +
+            filas + '</table>';
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDIERON CARGAR LAS CALIFICACIONES. VERIFICA TU INTERNET.';
+          contenedor.innerHTML = '';
+        });
+    }
+
+    document.getElementById('btn_descargar_calif').addEventListener('click', function () {
+      const grado = document.getElementById('grado_calif').value;
+      const desde = document.getElementById('calif_desde').value;
+      const hasta = document.getElementById('calif_hasta').value;
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'calificaciones_grado',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = filtrar(resultado.calificaciones || [], desde, hasta);
+          if (lista.length === 0) {
+            const aviso = document.getElementById('aviso_calif');
+            aviso.className = 'aviso info';
+            aviso.textContent = 'NO HAY CALIFICACIONES EN EL RANGO SELECCIONADO PARA DESCARGAR.';
+            return;
+          }
+          let filas = '';
+          lista.forEach(function (c) {
+            filas += '<tr>' + celdaExcel(c.fecha) + celdaExcel(c.codigo) + celdaExcel(c.nombre) +
+              celdaExcel(c.campo) + celdaExcel(c.nota) + celdaExcel(c.maestro) + '</tr>';
+          });
+          descargarExcel('CALIFICACIONES', ['FECHA', 'CÓDIGO', 'ALUMNO', 'CAMPO FORMATIVO', 'NOTA', 'MAESTRO'],
+            filas, 'CALIFICACIONES_' + grado + '.xls', 'aviso_calif');
+        })
+        .catch(function () {
+          const aviso = document.getElementById('aviso_calif');
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDO DESCARGAR. VERIFICA TU INTERNET.';
+        });
+    });
+
+    document.getElementById('btn_ver_asist').addEventListener('click', verAsistencia);
+
+    function verAsistencia() {
+      const contenedor = document.getElementById('contenedor_asist');
+      const resumen = document.getElementById('resumen_asist');
+      const aviso = document.getElementById('aviso_asist');
+      const grado = document.getElementById('grado_asist').value;
+      const desde = document.getElementById('asist_desde').value;
+      const hasta = document.getElementById('asist_hasta').value;
+      aviso.className = 'aviso info';
+      aviso.textContent = 'CARGANDO ASISTENCIA...';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'asistencias_grado',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = filtrar(resultado.asistencias || [], desde, hasta);
+          if (lista.length === 0) {
+            aviso.className = 'aviso info';
+            aviso.textContent = 'NO HAY REGISTROS DE ASISTENCIA EN EL RANGO SELECCIONADO.';
+            contenedor.innerHTML = '';
+            resumen.innerHTML = '';
+            return;
+          }
+          aviso.className = 'aviso';
+          aviso.textContent = '';
+          let asis = 0, retardo = 0, falta = 0, justificada = 0;
+          let filas = '';
+          lista.forEach(function (r) {
+            if (r.estado === 'ASISTIÓ') asis++;
+            else if (r.estado === 'RETARDO') retardo++;
+            else if (r.estado === 'FALTA') falta++;
+            else if (r.estado === 'FALTA JUSTIFICADA') justificada++;
+            filas += '<tr>' +
+              '<td>' + fechaBonita(r.fecha) + '</td>' +
+              '<td><b>' + r.codigo + '</b><br>' + r.nombre + '</td>' +
+              '<td><span class="chip ' + claseEstado(r.estado) + '">' + r.estado + '</span></td>' +
+              '<td>' + r.maestro + '</td></tr>';
+          });
+          resumen.innerHTML =
+            '<span class="chip verde">ASISTIÓ: ' + asis + '</span>' +
+            '<span class="chip ambar">RETARDO: ' + retardo + '</span>' +
+            '<span class="chip rojo">FALTA: ' + falta + '</span>' +
+            '<span class="chip gris">JUSTIFICADA: ' + justificada + '</span>';
+          contenedor.innerHTML =
+            '<table class="tabla-historial">' +
+            '<tr><th>FECHA</th><th>ALUMNO</th><th>ESTADO</th><th>PROF.</th></tr>' +
+            filas + '</table>';
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDO CARGAR LA ASISTENCIA. VERIFICA TU INTERNET.';
+          contenedor.innerHTML = '';
+          resumen.innerHTML = '';
+        });
+    }
+
+    document.getElementById('btn_descargar_asist').addEventListener('click', function () {
+      const grado = document.getElementById('grado_asist').value;
+      const desde = document.getElementById('asist_desde').value;
+      const hasta = document.getElementById('asist_hasta').value;
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'asistencias_grado',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = filtrar(resultado.asistencias || [], desde, hasta);
+          if (lista.length === 0) {
+            const aviso = document.getElementById('aviso_asist');
+            aviso.className = 'aviso info';
+            aviso.textContent = 'NO HAY REGISTROS EN EL RANGO SELECCIONADO PARA DESCARGAR.';
+            return;
+          }
+          let filas = '';
+          lista.forEach(function (r) {
+            filas += '<tr>' + celdaExcel(r.fecha) + celdaExcel(r.codigo) + celdaExcel(r.nombre) +
+              celdaExcel(r.estado) + celdaExcel(r.maestro) + '</tr>';
+          });
+          descargarExcel('ASISTENCIA', ['FECHA', 'CÓDIGO', 'ALUMNO', 'ESTADO', 'MAESTRO'],
+            filas, 'ASISTENCIA_' + grado + '.xls', 'aviso_asist');
+        })
+        .catch(function () {
+          const aviso = document.getElementById('aviso_asist');
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDO DESCARGAR. VERIFICA TU INTERNET.';
+        });
+    });
+
+    function pintarMensajesAviso() {
+      const contenedor = document.getElementById('mensajes_aviso');
+      contenedor.innerHTML = '';
+      MENSAJES_NOTIFICACION.forEach(function (mensaje) {
+        const opcion = document.createElement('div');
+        opcion.className = 'opcion';
+        opcion.innerHTML = '<span class="marca"></span><span>' + mensaje + '</span>';
+        opcion.addEventListener('click', function () {
+          document.querySelectorAll('#mensajes_aviso .opcion').forEach(function (o) {
+            o.classList.remove('seleccionada');
+          });
+          if (mensajeSeleccionado === mensaje) {
+            mensajeSeleccionado = '';
+          } else {
+            mensajeSeleccionado = mensaje;
+            opcion.classList.add('seleccionada');
+          }
+        });
+        contenedor.appendChild(opcion);
+      });
+    }
+
+    document.getElementById('btn_enviar_aviso').addEventListener('click', function () {
+      const aviso = document.getElementById('aviso_aviso');
+      const grado = document.getElementById('grado_aviso').value;
+      if (!grado) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'SELECCIONA UN GRUPO.';
+        return;
+      }
+      if (!mensajeSeleccionado) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'ELIGE UNO DE LOS MENSAJES.';
+        return;
+      }
+      const boton = document.getElementById('btn_enviar_aviso');
+      boton.disabled = true;
+      boton.textContent = 'ENVIANDO...';
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          accion: 'notificacion',
+          maestro: directorActual.nombre,
+          grado: grado,
+          mensaje: mensajeSeleccionado
+        })
+      })
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (resultado.ok) {
+            aviso.className = 'aviso exito';
+            aviso.textContent = 'AVISO ENVIADO A LOS PADRES DEL GRUPO ' + grado + '.';
+            mensajeSeleccionado = '';
+            document.querySelectorAll('#mensajes_aviso .opcion').forEach(function (o) {
+              o.classList.remove('seleccionada');
+            });
+            cargarHistorialAvisos();
+          } else {
+            aviso.className = 'aviso error';
+            aviso.textContent = 'OCURRIÓ UN PROBLEMA AL ENVIAR. INTENTA DE NUEVO.';
+          }
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'SIN CONEXIÓN. NO SE ENVIÓ EL AVISO. VERIFICA TU INTERNET.';
+        })
+        .finally(function () {
+          boton.disabled = false;
+          boton.textContent = 'ENVIAR NOTIFICACIÓN';
+        });
+    });
+
+    document.getElementById('grado_aviso').addEventListener('change', cargarHistorialAvisos);
+
+    function cargarHistorialAvisos() {
+      const select = document.getElementById('grado_aviso');
+      const contenedor = document.getElementById('historial_avisos');
+      const grado = select.value;
+      if (!grado) return;
+      contenedor.innerHTML = '<p class="leyenda">CARGANDO... <b>' + grado + '</b></p>';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'notificaciones',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = resultado.notificaciones || [];
+          if (lista.length === 0) {
+            contenedor.innerHTML = '<p class="leyenda">SIN AVISOS PARA ESTE GRUPO TODAVÍA.</p>';
+            return;
+          }
+          contenedor.innerHTML = '';
+          lista.slice(0, 5).forEach(function (aviso) {
+            const item = document.createElement('div');
+            item.className = 'aviso-item';
+            item.innerHTML =
+              '<div class="fila"><div class="texto">' +
+              '<div class="mensaje">' + aviso.mensaje + '</div>' +
+              '<div class="meta">' + aviso.maestro + ' — ' + aviso.fecha + '</div>' +
+              '</div></div>';
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.className = 'borrar';
+            boton.textContent = 'BORRAR';
+            boton.addEventListener('click', function () {
+              boton.disabled = true;
+              fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                  accion: 'notificacion_borrar',
+                  fila: aviso.fila
+                })
+              })
+                .then(function (respuesta) { return respuesta.json(); })
+                .then(function (resultado) {
+                  if (resultado.ok) {
+                    item.remove();
+                    cargarHistorialAvisos();
+                  } else {
+                    boton.disabled = false;
+                  }
+                })
+                .catch(function () {
+                  boton.disabled = false;
+                });
+            });
+            item.querySelector('.fila').appendChild(boton);
+            contenedor.appendChild(item);
+          });
+        })
+        .catch(function () {
+          contenedor.innerHTML = '<p class="leyenda">NO SE PUDIERON CARGAR LOS AVISOS. VERIFICA TU INTERNET.</p>';
+        });
+    }
+
+    const sesionGuardada = localStorage.getItem(CLAVE_SESION);
+    if (sesionGuardada) {
+      entrarComo(sesionGuardada);
+    }
+    const codigoUrl = new URLSearchParams(window.location.search).get('codigo');
+    if (codigoUrl) {
+      entrarComo(codigoUrl.trim().toUpperCase());
+      history.replaceState(null, '', window.location.pathname);
+    }
+  </script>
+</body>
+</html>

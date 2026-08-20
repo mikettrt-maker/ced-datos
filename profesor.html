@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CED - Portal del Profesor</title>
+  <style>
+    :root {
+      --color-primario: #4E93B8;
+      --color-secundario: #E06080;
+      --fondo: #F3F5F7;
+      --tarjeta: #ffffff;
+      --texto: #3A444D;
+      --error: #c0392b;
+      --ambar: #FF9060;
+      --rojo: #c0392b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+    .vista { display: none; }
+    .vista.activa { display: block; }
+
+    header.barra {
+      background: linear-gradient(135deg, var(--color-primario), #2F77A0);
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    header.barra .izq {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    header.barra img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    header.barra h1 {
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    header.barra button {
+      background: rgba(255, 255, 255, .15);
+      color: #fff;
+      border: 1.5px solid rgba(255, 255, 255, .5);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    main { max-width: 640px; margin: 0 auto; padding: 16px; }
+
+    .login {
+      max-width: 420px;
+      margin: 60px auto;
+    }
+    .login .tarjeta {
+      background: var(--tarjeta);
+      border-radius: 14px;
+      padding: 28px 24px;
+      box-shadow: 0 6px 20px rgba(13, 74, 128, .15);
+      text-align: center;
+    }
+    .login img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      margin: 0 auto 14px;
+      display: block;
+    }
+    .login h2 { font-size: 19px; }
+    .login .campo { text-align: left; margin: 18px 0 14px; }
+    .login .campo label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .login .campo input {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      text-transform: uppercase;
+      background: #fbfdff;
+    }
+    .login .campo input:focus {
+      outline: none;
+      border-color: var(--color-primario);
+      background: #fff;
+    }
+    .login button {
+      width: 100%;
+      padding: 13px;
+      background: var(--color-secundario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .login .aviso {
+      display: none;
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: #fdecea;
+      color: var(--error);
+      border: 1.5px solid var(--error);
+    }
+    .login .aviso.visible { display: block; }
+
+    .pestanas {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .pestanas button {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 10px;
+      background: var(--tarjeta);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      color: var(--texto);
+    }
+    .pestanas button.activa {
+      background: var(--color-primario);
+      border-color: var(--color-primario);
+      color: #fff;
+    }
+
+    .tarjeta {
+      background: var(--tarjeta);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(13, 74, 128, .12);
+      margin-bottom: 16px;
+    }
+    .tarjeta h3 {
+      font-size: 15px;
+      color: var(--color-primario);
+      border-bottom: 2px solid #D9E7EF;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .campo { margin-bottom: 14px; }
+    .campo label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .campo select,
+    .campo input[type=date] {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fbfdff;
+      text-transform: uppercase;
+    }
+    .opcion {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      background: var(--tarjeta);
+      color: var(--texto);
+      user-select: none;
+    }
+    .opcion .marca {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #cfdbe8;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .opcion.seleccionada {
+      border-color: var(--color-primario);
+      background: #eef6fd;
+    }
+    .opcion.seleccionada .marca {
+      border-color: var(--color-primario);
+      background: var(--color-primario);
+    }
+    .opcion.seleccionada .marca::after {
+      content: '✓';
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    .opcion.materia { font-size: 13px; padding: 10px 12px; }
+    .materias-grado { border-left: 3px solid #D9E7EF; margin: 0 0 14px 10px; padding-left: 12px; display: none; }
+    .materias-grado.visible { display: block; }
+    .materias-grado .titulo { font-size: 12px; color: var(--color-primario); font-weight: 700; margin: 4px 0 8px; }
+
+    .guardar {
+      width: 100%;
+      padding: 14px;
+      margin-top: 6px;
+      background: var(--color-secundario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .guardar:disabled { opacity: .6; cursor: not-allowed; }
+
+    .aviso {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .aviso.exito { display: block; background: #FDE9EF; color: #B84A6A; border: 1.5px solid var(--color-secundario); }
+    .aviso.error { display: block; background: #fdecea; color: var(--error); border: 1.5px solid var(--error); }
+    .aviso.info { display: block; background: #D9E7EF; color: var(--color-primario); border: 1.5px solid var(--color-primario); }
+
+    .chip {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin: 0 6px 6px 0;
+    }
+    .chip.azul { background: #D9E7EF; color: var(--color-primario); }
+    .chip.verde { background: #FDE9EF; color: #B84A6A; }
+    .chip.rojo { background: #fdecea; color: var(--error); }
+    .chip.ambar { background: #FFF0E6; color: var(--ambar); }
+
+    .resumen-grado { margin-bottom: 12px; }
+    .resumen-grado .grado { font-weight: 700; color: var(--color-primario); font-size: 14px; margin-bottom: 4px; }
+
+    .aviso-item {
+      background: #fff;
+      border: 1.5px solid #D9E7EF;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .aviso-item .mensaje { font-weight: 700; font-size: 13px; }
+    .aviso-item .meta { font-size: 11px; color: #7a8a9a; margin-top: 4px; }
+    .aviso-item .texto { flex: 1; min-width: 0; }
+    .aviso-item .fila { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .aviso-item .borrar {
+      border: 1.5px solid #f0c4c4;
+      background: #fff;
+      color: var(--error);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .leyenda {
+      font-size: 12px;
+      color: #7a8a9a;
+      margin-top: 10px;
+      line-height: 1.7;
+    }
+    .leyenda b { color: var(--texto); }
+
+    .alumno {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #eef3f8;
+      flex-wrap: wrap;
+    }
+    .alumno .info { flex: 1; min-width: 160px; }
+    .alumno .info .codigo { font-size: 11px; color: #7a8a9a; }
+    .alumno .info .nombre { font-size: 13px; font-weight: 700; }
+    .opciones { display: flex; gap: 6px; }
+    .opciones button {
+      border: 1.5px solid #cfdbe8;
+      background: var(--tarjeta);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      color: var(--texto);
+    }
+    .opciones button.asistio.activo { background: var(--color-secundario); border-color: var(--color-secundario); color: #fff; }
+    .opciones button.retardo.activo { background: var(--ambar); border-color: var(--ambar); color: #fff; }
+    .opciones button.falta.activo { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+    .opciones button.justificada.activo { background: #6B7280; border-color: #6B7280; color: #fff; }
+    .opciones .nota {
+      width: 76px;
+      padding: 8px;
+      border: 1.5px solid #cfdbe8;
+      border-radius: 8px;
+      font-size: 15px;
+      text-align: center;
+      font-family: inherit;
+      background: #fbfdff;
+    }
+    .opciones .nota:focus { outline: none; border-color: var(--color-primario); background: #fff; }
+    .ver-historial {
+      border: 1.5px solid var(--color-primario);
+      background: #fff;
+      color: var(--color-primario);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .ver-historial:disabled { opacity: .6; cursor: wait; }
+    .historial {
+      display: none;
+      width: 100%;
+      background: #f6f9fb;
+      border: 1px solid #D9E7EF;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .historial.visible { display: block; }
+    .historial h4 {
+      font-size: 12px;
+      color: var(--color-primario);
+      text-transform: uppercase;
+      margin: 0 0 6px;
+      border-bottom: 1.5px solid #D9E7EF;
+      padding-bottom: 4px;
+    }
+    .historial h4:not(:first-child) { margin-top: 12px; }
+    .historial .renglon {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 2px;
+      border-bottom: 1px dashed #e3ecf2;
+      font-size: 12px;
+    }
+    .historial .renglon:last-child { border-bottom: none; }
+    .chip.gris { background: #eaecef; color: #4b5563; }
+    .tabla-historial {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .tabla-historial th {
+      background: #D9E7EF;
+      color: var(--color-primario);
+      padding: 6px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    .tabla-historial td {
+      padding: 6px;
+      border-bottom: 1px solid #eef3f8;
+      vertical-align: top;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="barra">
+    <div class="izq">
+      <img src="logo.png" alt="Logo">
+      <h1 id="titulo_barra">PORTAL DEL PROFESOR</h1>
+    </div>
+    <button type="button" id="btn_salir">SALIR</button>
+  </header>
+
+  <div id="vista_login" class="vista login activa">
+    <div class="tarjeta">
+      <img src="logo.png" alt="Logo">
+      <h2>CÓDIGO DEL MAESTRO</h2>
+      <div class="campo">
+        <label for="codigo_maestro">CÓDIGO *</label>
+        <input type="text" id="codigo_maestro" placeholder="EJ. CED-26-QZV46P" maxlength="14">
+      </div>
+      <button type="button" id="btn_entrar">ENTRAR</button>
+      <div class="aviso" id="aviso_login">CÓDIGO INCORRECTO. VERIFICA CON DIRECCIÓN.</div>
+    </div>
+  </div>
+
+  <div id="vista_panel" class="vista">
+    <main>
+      <div class="pestanas">
+        <button type="button" id="tab_config" class="activa">MI CONFIGURACIÓN</button>
+        <button type="button" id="tab_asistencia">ASISTENCIA</button>
+        <button type="button" id="tab_notificaciones">NOTIFICACIONES</button>
+        <button type="button" id="tab_calificaciones">CALIFICACIONES</button>
+      </div>
+
+      <div id="panel_config" class="vista activa">
+        <div class="tarjeta">
+          <h3>TU ASESORÍA (GRUPO QUE TIENES A CARGO)</h3>
+          <div class="campo">
+            <label for="asesoria">GRUPO DEL QUE ERES ASESOR *</label>
+            <select id="asesoria">
+              <option value="">SELECCIONA EL GRADO...</option>
+            </select>
+            <p class="leyenda">Aquí registrarás la asistencia (faltas, retardos, etc.).</p>
+          </div>
+        </div>
+
+        <div class="tarjeta">
+          <h3>GRUPOS DONDE DAS CLASE</h3>
+          <p class="leyenda" style="margin-top:0;margin-bottom:10px">Selecciona los grados y luego las materias que impartes en cada uno.</p>
+          <div id="lista_grados"></div>
+        </div>
+
+        <button class="guardar" id="btn_guardar_config">GUARDAR MI CONFIGURACIÓN</button>
+        <div class="aviso" id="aviso_config"></div>
+        <div id="resumen"></div>
+      </div>
+
+      <div id="panel_asistencia" class="vista">
+        <div class="tarjeta">
+          <h3>REGISTRO DE ASISTENCIA</h3>
+          <div class="campo">
+            <label>GRUPO (TU ASESORÍA)</label>
+            <p id="info_grupo_asistencia" style="font-size:15px;font-weight:700"></p>
+          </div>
+          <div class="campo">
+            <label for="fecha_asistencia">FECHA *</label>
+            <input type="date" id="fecha_asistencia">
+            <div class="leyenda" id="chip_dia"></div>
+          </div>
+          <div id="aviso_asistencia" class="aviso"></div>
+          <div id="contenedor_alumnos"></div>
+          <button class="guardar" id="btn_guardar">GUARDAR ASISTENCIA</button>
+        </div>
+      </div>
+
+      <div id="panel_notificaciones" class="vista">
+        <div class="tarjeta">
+          <h3>ENVIAR AVISO A LOS PADRES</h3>
+          <div class="campo">
+            <label for="grado_notificacion">GRUPO DESTINO *</label>
+            <select id="grado_notificacion"></select>
+            <p class="leyenda">Puedes enviar a cualquier grupo, seas o no asesor.</p>
+          </div>
+          <p class="leyenda" style="margin-top:0;margin-bottom:10px">Elige el mensaje:</p>
+          <div id="mensajes_notificacion"></div>
+          <button class="guardar" id="btn_enviar_notificacion">ENVIAR NOTIFICACIÓN</button>
+          <div class="aviso" id="aviso_notificacion"></div>
+        </div>
+        <div class="tarjeta">
+          <h3>ÚLTIMOS AVISOS ENVIADOS</h3>
+          <div id="historial_notificaciones"><p class="leyenda">Selecciona un grupo para ver sus avisos.</p></div>
+        </div>
+      </div>
+
+      <div id="panel_calificaciones" class="vista">
+        <div class="tarjeta">
+          <h3>CALIFICACIONES DEL DÍA</h3>
+          <div class="campo">
+            <label for="grado_calificacion">GRUPO *</label>
+            <select id="grado_calificacion"></select>
+          </div>
+          <div class="campo">
+            <label for="campo_calificacion">CAMPO FORMATIVO / MATERIA *</label>
+            <select id="campo_calificacion"></select>
+          </div>
+          <div class="campo">
+            <label for="fecha_calificacion">FECHA *</label>
+            <input type="date" id="fecha_calificacion">
+            <div class="leyenda">La calificación del día se guarda tal cual: ej. 7, 8.5, 10.</div>
+          </div>
+          <div class="campo">
+            <label>HISTORIAL DEL GRUPO — FILTRO DE FECHAS</label>
+            <div style="display:flex;gap:10px">
+              <div style="flex:1">
+                <label style="font-size:12px" for="hist_desde">DESDE</label>
+                <input type="date" id="hist_desde">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:12px" for="hist_hasta">HASTA</label>
+                <input type="date" id="hist_hasta">
+              </div>
+            </div>
+            <p class="leyenda">Deja las fechas vacías para ver todo el ciclo escolar.</p>
+          </div>
+          <button class="guardar" id="btn_ver_historial" style="background:var(--color-primario);margin-top:10px">VER HISTORIAL DEL GRUPO</button>
+          <div id="historial_grupo"></div>
+          <div id="aviso_calificacion" class="aviso"></div>
+          <div id="contenedor_calificaciones"></div>
+          <button class="guardar" id="btn_guardar_calificaciones">GUARDAR CALIFICACIONES</button>
+          <button class="guardar" id="btn_descargar_calificaciones" style="background:var(--color-primario);margin-top:10px">DESCARGAR CALIFICACIONES DEL GRUPO (EXCEL)</button>
+          <p class="leyenda">Descarga las calificaciones del grupo seleccionado para tus controles internos. El archivo abre en Excel.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="maestros.js"></script>
+  <script src="calendario.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLp3ZNDnXMHRoqtEo3yNHo7lLPlH8IqozsEERUcoA-fShI-9JkrLhnc6ewrTm_Z8gmKQ/exec';
+    const CLAVE_SESION = 'ced_maestro';
+    const CLAVE_CONFIG = 'ced_config_';
+
+    const GRADOS = [
+      '1° DE PRIMARIA',
+      '2° DE PRIMARIA',
+      '3° DE PRIMARIA',
+      '4° DE PRIMARIA',
+      '5° DE PRIMARIA',
+      '6° DE PRIMARIA'
+    ];
+
+    const MATERIAS_DISPONIBLES = [
+      'LENGUAJES (ESPAÑOL)',
+      'LENGUAJES (INGLÉS)',
+      'SABERES Y PENSAMIENTO CIENTÍFICO (MATEMÁTICAS)',
+      'SABERES Y PENSAMIENTO CIENTÍFICO (CIENCIAS)',
+      'ÉTICA, NATURALEZA Y SOCIEDADES',
+      'DE LO HUMANO Y LO COMUNITARIO',
+      'INFORMÁTICA (ROBÓTICA Y MODELADO 3D)'
+    ];
+
+    const MENSAJES_NOTIFICACION = [
+      'MATERIAL SOLICITADO, ¡REVISA GOOGLE CLASSROOM!',
+      'MATERIAL PARA CLUB, REVISA GOOGLE CLASSROOM!',
+      'NO CUMPLIÓ CON LOS MATERIALES SOLICITADOS.',
+      'NO CUMPLIÓ CON LA TAREA',
+      'RECORDATORIO DE SEMANA DE PROYECTOS',
+      'RECORDATORIO DE SEMANA DE EVALUACIONES'
+    ];
+
+    let mensajeSeleccionado = '';
+    let califGrado = '';
+    let califCampo = '';
+    let califAlumnos = [];
+    let notasPrevias = {};
+
+    const vistaLogin = document.getElementById('vista_login');
+    const vistaPanel = document.getElementById('vista_panel');
+    const panelConfig = document.getElementById('panel_config');
+    const panelAsistencia = document.getElementById('panel_asistencia');
+    const panelNotificaciones = document.getElementById('panel_notificaciones');
+    const panelCalificaciones = document.getElementById('panel_calificaciones');
+    const campoCodigo = document.getElementById('codigo_maestro');
+
+    let maestroActual = null;
+    let config = null;
+    let alumnosActuales = [];
+    let estadosActuales = {};
+
+    campoCodigo.addEventListener('input', function () {
+      campoCodigo.value = campoCodigo.value.toUpperCase();
+    });
+
+    function entrarComo(codigo) {
+      codigo = String(codigo || '').replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
+      const maestro = maestroPorCodigo(codigo);
+      if (!maestro) {
+        document.getElementById('aviso_login').classList.add('visible');
+        return;
+      }
+      maestroActual = maestro;
+      localStorage.setItem(CLAVE_SESION, maestro.codigo);
+      document.getElementById('aviso_login').classList.remove('visible');
+      document.getElementById('titulo_barra').textContent = 'PORTAL DE ' + maestro.nombre;
+      var aviso = document.getElementById('aviso_login');
+      aviso.className = 'aviso visible';
+      aviso.textContent = 'CARGANDO TU CONFIGURACIÓN...';
+      cargarConfig().then(function () {
+        pintarPanel();
+        pintarPanelAsistencia();
+        aviso.className = 'aviso';
+        vistaLogin.classList.remove('activa');
+        vistaPanel.classList.add('activa');
+      });
+    }
+
+    document.getElementById('btn_entrar').addEventListener('click', function () {
+      entrarComo(campoCodigo.value.trim().toUpperCase());
+    });
+
+    campoCodigo.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        entrarComo(campoCodigo.value.trim().toUpperCase());
+      }
+    });
+
+    document.getElementById('btn_salir').addEventListener('click', function () {
+      localStorage.removeItem(CLAVE_SESION);
+      window.location.href = 'inicio.html';
+    });
+
+    document.getElementById('tab_config').addEventListener('click', function () {
+      cambiarPestana('config');
+    });
+    document.getElementById('tab_asistencia').addEventListener('click', function () {
+      cambiarPestana('asistencia');
+      const campo = document.getElementById('fecha_asistencia');
+      limpiarVistaAsistencia();
+      pintarPanelAsistencia();
+      if (config && config.asesoria && !campo.value) {
+        campo.value = hoyISO();
+      }
+      if (campo.value) {
+        campo.dispatchEvent(new Event('change'));
+      }
+    });
+
+    document.getElementById('tab_notificaciones').addEventListener('click', function () {
+      cambiarPestana('notificaciones');
+      cargarHistorial();
+    });
+
+    document.getElementById('tab_calificaciones').addEventListener('click', function () {
+      cambiarPestana('calificaciones');
+      const campo = document.getElementById('fecha_calificacion');
+      if (!campo.value) {
+        campo.value = hoyISO();
+      }
+      cargarCalificacionesAlumnos();
+    });
+
+    function cambiarPestana(cual) {
+      document.getElementById('tab_config').classList.toggle('activa', cual === 'config');
+      document.getElementById('tab_asistencia').classList.toggle('activa', cual === 'asistencia');
+      document.getElementById('tab_notificaciones').classList.toggle('activa', cual === 'notificaciones');
+      document.getElementById('tab_calificaciones').classList.toggle('activa', cual === 'calificaciones');
+      panelConfig.classList.toggle('activa', cual === 'config');
+      panelAsistencia.classList.toggle('activa', cual === 'asistencia');
+      panelNotificaciones.classList.toggle('activa', cual === 'notificaciones');
+      panelCalificaciones.classList.toggle('activa', cual === 'calificaciones');
+    }
+
+    function configPorDefecto() {
+      const materias = {};
+      const grados = [];
+      const mapa = {};
+      (maestroActual.materias || []).forEach(function (m) {
+        if (!mapa[m.grado]) {
+          mapa[m.grado] = [];
+          grados.push(m.grado);
+        }
+        mapa[m.grado].push(m.materia);
+      });
+      grados.forEach(function (grado) {
+        materias[grado] = mapa[grado];
+      });
+      return {
+        asesoria: maestroActual.asesoria || '',
+        grados: grados,
+        materias: materias
+      };
+    }
+
+    function cargarConfig() {
+      return fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'config_leer',
+        codigo: maestroActual.codigo
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (resultado.ok && resultado.config) {
+            config = resultado.config;
+            guardarConfigLocal();
+            return;
+          }
+          throw new Error('sin config');
+        })
+        .catch(function () {
+          const guardada = localStorage.getItem(CLAVE_CONFIG + maestroActual.codigo);
+          if (guardada) {
+            try {
+              config = JSON.parse(guardada);
+              return;
+            } catch (e) {}
+          }
+          config = configPorDefecto();
+        });
+    }
+
+    function guardarConfigLocal() {
+      localStorage.setItem(CLAVE_CONFIG + maestroActual.codigo, JSON.stringify(config));
+    }
+
+    function pintarPanel() {
+      pintarSelectoresGrado();
+      pintarListaGrados();
+      pintarResumen();
+      pintarMensajesNotificacion();
+      pintarSelectGradoNotificacion();
+      pintarCalificaciones();
+    }
+
+    function pintarSelectoresGrado() {
+      const asesoria = document.getElementById('asesoria');
+      asesoria.innerHTML = '';
+      GRADOS.forEach(function (grado) {
+        const opcion = document.createElement('option');
+        opcion.value = grado;
+        opcion.textContent = grado;
+        asesoria.appendChild(opcion);
+      });
+      asesoria.value = config.asesoria;
+      asesoria.addEventListener('change', function () {
+        config.asesoria = asesoria.value;
+      });
+    }
+
+    function pintarListaGrados() {
+      const contenedor = document.getElementById('lista_grados');
+      contenedor.innerHTML = '';
+      GRADOS.forEach(function (grado) {
+        const bloque = document.createElement('div');
+        bloque.dataset.grado = grado;
+
+        const tarjetaGrado = document.createElement('div');
+        tarjetaGrado.className = 'opcion grado' + (config.grados.indexOf(grado) !== -1 ? ' seleccionada' : '');
+        tarjetaGrado.innerHTML = '<span class="marca"></span><span>' + grado + '</span>';
+        tarjetaGrado.addEventListener('click', function () {
+          const esta = config.grados.indexOf(grado) !== -1;
+          if (esta) {
+            config.grados = config.grados.filter(function (g) { return g !== grado; });
+            delete config.materias[grado];
+          } else {
+            config.grados.push(grado);
+            if (!config.materias[grado]) {
+              config.materias[grado] = [];
+            }
+          }
+          pintarListaGrados();
+        });
+
+        const materias = document.createElement('div');
+        materias.className = 'materias-grado' + (config.grados.indexOf(grado) !== -1 ? ' visible' : '');
+        const titulo = document.createElement('div');
+        titulo.className = 'titulo';
+        titulo.textContent = 'MATERIAS EN ' + grado + ':';
+        materias.appendChild(titulo);
+
+        MATERIAS_DISPONIBLES.forEach(function (materia) {
+          const chip = document.createElement('div');
+          chip.className = 'opcion materia' +
+            (config.materias[grado] && config.materias[grado].indexOf(materia) !== -1 ? ' seleccionada' : '');
+          chip.innerHTML = '<span class="marca"></span><span>' + materia + '</span>';
+          chip.addEventListener('click', function () {
+            if (!config.materias[grado]) {
+              config.materias[grado] = [];
+            }
+            const tiene = config.materias[grado].indexOf(materia) !== -1;
+            if (tiene) {
+              config.materias[grado] = config.materias[grado].filter(function (m) { return m !== materia; });
+            } else {
+              config.materias[grado].push(materia);
+            }
+            chip.classList.toggle('seleccionada');
+          });
+          materias.appendChild(chip);
+        });
+
+        bloque.appendChild(tarjetaGrado);
+        bloque.appendChild(materias);
+        contenedor.appendChild(bloque);
+      });
+    }
+
+    document.getElementById('btn_guardar_config').addEventListener('click', function () {
+      const aviso = document.getElementById('aviso_config');
+      if (!config.asesoria) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'SELECCIONA EL GRUPO DEL QUE ERES ASESOR.';
+        return;
+      }
+      guardarConfigLocal();
+      aviso.className = 'aviso info';
+      aviso.textContent = 'GUARDANDO EN GOOGLE SHEETS...';
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          accion: 'config_guardar',
+          codigo: maestroActual.codigo,
+          nombre: maestroActual.nombre,
+          asesoria: config.asesoria,
+          grados: config.grados,
+          materias: config.materias
+        })
+      })
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (resultado.ok) {
+            pintarResumen();
+            aviso.className = 'aviso exito';
+            aviso.textContent = 'CONFIGURACIÓN GUARDADA EN GOOGLE SHEETS CORRECTAMENTE.';
+          } else {
+            aviso.className = 'aviso error';
+            aviso.textContent = 'NO SE PUDO GUARDAR EN LA NUBE. REVISA TU INTERNET Y VUELVE A INTENTARLO.';
+          }
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'SIN CONEXIÓN. NO SE GUARDÓ EN LA NUBE. REVISA TU INTERNET Y VUELVE A INTENTARLO.';
+        });
+    });
+
+    function pintarResumen() {
+      const contenedor = document.getElementById('resumen');
+      if (!contenedor) return;
+      contenedor.innerHTML = '';
+      const tarjeta = document.createElement('div');
+      tarjeta.className = 'tarjeta';
+      tarjeta.innerHTML = '<h3>MI RESUMEN</h3>';
+      tarjeta.insertAdjacentHTML('beforeend',
+        '<span class="chip azul">ASESORÍA: ' + config.asesoria + '</span>');
+      config.grados.forEach(function (grado) {
+        const bloque = document.createElement('div');
+        bloque.className = 'resumen-grado';
+        bloque.innerHTML = '<div class="grado">' + grado + '</div>';
+        (config.materias[grado] || []).forEach(function (materia) {
+          const chip = document.createElement('span');
+          chip.className = 'chip verde';
+          chip.textContent = materia;
+          bloque.appendChild(chip);
+        });
+        if (!config.materias[grado] || config.materias[grado].length === 0) {
+          const chip = document.createElement('span');
+          chip.className = 'chip rojo';
+          chip.textContent = 'SIN MATERIAS SELECCIONADAS';
+          bloque.appendChild(chip);
+        }
+        tarjeta.appendChild(bloque);
+      });
+      contenedor.appendChild(tarjeta);
+    }
+
+    function pintarMensajesNotificacion() {
+      const contenedor = document.getElementById('mensajes_notificacion');
+      contenedor.innerHTML = '';
+      MENSAJES_NOTIFICACION.forEach(function (mensaje) {
+        const opcion = document.createElement('div');
+        opcion.className = 'opcion materia';
+        opcion.innerHTML = '<span class="marca"></span><span>' + mensaje + '</span>';
+        opcion.addEventListener('click', function () {
+          document.querySelectorAll('#mensajes_notificacion .opcion').forEach(function (o) {
+            o.classList.remove('seleccionada');
+          });
+          if (mensajeSeleccionado === mensaje) {
+            mensajeSeleccionado = '';
+          } else {
+            mensajeSeleccionado = mensaje;
+            opcion.classList.add('seleccionada');
+          }
+        });
+        contenedor.appendChild(opcion);
+      });
+    }
+
+    function pintarSelectGradoNotificacion() {
+      const select = document.getElementById('grado_notificacion');
+      select.innerHTML = '';
+      GRADOS.forEach(function (grado) {
+        const opcion = document.createElement('option');
+        opcion.value = grado;
+        opcion.textContent = grado;
+        select.appendChild(opcion);
+      });
+      if (config.asesoria) {
+        select.value = config.asesoria;
+      }
+      select.addEventListener('change', function () {
+        cargarHistorial();
+      });
+    }
+
+    function cargarHistorial() {
+      const select = document.getElementById('grado_notificacion');
+      const contenedor = document.getElementById('historial_notificaciones');
+      const grado = select.value;
+      contenedor.innerHTML = '<p class="leyenda">CARGANDO... <b>' + grado + '</b></p>';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'notificaciones',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = resultado.notificaciones || [];
+          if (lista.length === 0) {
+            contenedor.innerHTML = '<p class="leyenda">SIN AVISOS PARA ESTE GRUPO TODAVÍA.</p>';
+            return;
+          }
+          contenedor.innerHTML = '';
+          lista.slice(0, 5).forEach(function (aviso) {
+            const item = document.createElement('div');
+            item.className = 'aviso-item';
+            item.innerHTML =
+              '<div class="fila"><div class="texto">' +
+              '<div class="mensaje">' + aviso.mensaje + '</div>' +
+              '<div class="meta">' + aviso.maestro + ' — ' + aviso.fecha + '</div>' +
+              '</div></div>';
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.className = 'borrar';
+            boton.textContent = 'BORRAR';
+            boton.addEventListener('click', function () {
+              borrarAviso(aviso.fila, item);
+            });
+            item.querySelector('.fila').appendChild(boton);
+            contenedor.appendChild(item);
+          });
+        })
+        .catch(function () {
+          contenedor.innerHTML = '<p class="leyenda">NO SE PUDIERON CARGAR LOS AVISOS. VERIFICA TU INTERNET.</p>';
+        });
+    }
+
+    function borrarAviso(fila, item) {
+      item.querySelector('.borrar').disabled = true;
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          accion: 'notificacion_borrar',
+          fila: fila
+        })
+      })
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (resultado.ok) {
+            item.remove();
+            cargarHistorial();
+          } else {
+            item.querySelector('.borrar').disabled = false;
+          }
+        })
+        .catch(function () {
+          item.querySelector('.borrar').disabled = false;
+        });
+    }
+
+    document.getElementById('btn_enviar_notificacion').addEventListener('click', function () {
+      const aviso = document.getElementById('aviso_notificacion');
+      const grado = document.getElementById('grado_notificacion').value;
+      if (!grado) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'SELECCIONA UN GRUPO.';
+        return;
+      }
+      if (!mensajeSeleccionado) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'ELIGE UNO DE LOS MENSAJES.';
+        return;
+      }
+      const boton = document.getElementById('btn_enviar_notificacion');
+      boton.disabled = true;
+      boton.textContent = 'ENVIANDO...';
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          accion: 'notificacion',
+          maestro: maestroActual.nombre,
+          grado: grado,
+          mensaje: mensajeSeleccionado
+        })
+      })
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (resultado.ok) {
+            aviso.className = 'aviso exito';
+            aviso.textContent = 'AVISO ENVIADO A LOS PADRES DEL GRUPO ' + grado + '.';
+            mensajeSeleccionado = '';
+            document.querySelectorAll('#mensajes_notificacion .opcion').forEach(function (o) {
+              o.classList.remove('seleccionada');
+            });
+            cargarHistorial();
+          } else {
+            aviso.className = 'aviso error';
+            aviso.textContent = 'OCURRIÓ UN PROBLEMA AL ENVIAR. INTENTA DE NUEVO.';
+          }
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'SIN CONEXIÓN. NO SE ENVIÓ EL AVISO. VERIFICA TU INTERNET.';
+        })
+        .finally(function () {
+          boton.disabled = false;
+          boton.textContent = 'ENVIAR NOTIFICACIÓN';
+        });
+    });
+
+    function pintarCalificaciones() {
+      const gradoSelect = document.getElementById('grado_calificacion');
+      const campoSelect = document.getElementById('campo_calificacion');
+      gradoSelect.innerHTML = '';
+      const grados = config.grados || [];
+      if (grados.length === 0) {
+        campoSelect.innerHTML = '';
+        document.getElementById('contenedor_calificaciones').innerHTML =
+          '<p class="leyenda">PRIMERO GUARDA TU CONFIGURACIÓN CON TUS GRUPOS Y MATERIAS.</p>';
+        return;
+      }
+      grados.forEach(function (grado) {
+        const opcion = document.createElement('option');
+        opcion.value = grado;
+        opcion.textContent = grado;
+        gradoSelect.appendChild(opcion);
+      });
+      if (config.asesoria && grados.indexOf(config.asesoria) !== -1) {
+        gradoSelect.value = config.asesoria;
+      } else {
+        gradoSelect.value = grados[0];
+      }
+      califGrado = gradoSelect.value;
+      gradoSelect.addEventListener('change', function () {
+        califGrado = gradoSelect.value;
+        pintarCamposCalificacion();
+      });
+      pintarCamposCalificacion();
+    }
+
+    function pintarCamposCalificacion() {
+      const campoSelect = document.getElementById('campo_calificacion');
+      campoSelect.innerHTML = '';
+      const materias = (config.materias[califGrado] || []);
+      if (materias.length === 0) {
+        document.getElementById('contenedor_calificaciones').innerHTML =
+          '<p class="leyenda">ESTE GRUPO NO TIENE MATERIAS. AJUSTA TU CONFIGURACIÓN.</p>';
+        califCampo = '';
+        return;
+      }
+      materias.forEach(function (materia) {
+        const opcion = document.createElement('option');
+        opcion.value = materia;
+        opcion.textContent = materia;
+        campoSelect.appendChild(opcion);
+      });
+      campoSelect.value = materias[0];
+      califCampo = materias[0];
+      campoSelect.addEventListener('change', function () {
+        califCampo = campoSelect.value;
+        cargarCalificacionesAlumnos();
+      });
+      if (document.getElementById('fecha_calificacion').value) {
+        cargarCalificacionesAlumnos();
+      }
+    }
+
+    document.getElementById('fecha_calificacion').addEventListener('change', function () {
+      cargarCalificacionesAlumnos();
+    });
+
+    async function cargarCalificacionesAlumnos() {
+      const contenedor = document.getElementById('contenedor_calificaciones');
+      const aviso = document.getElementById('aviso_calificacion');
+      const fecha = document.getElementById('fecha_calificacion').value;
+      const grado = document.getElementById('grado_calificacion').value;
+      const campo = document.getElementById('campo_calificacion').value;
+      if (!fecha || !grado || !campo) return;
+      aviso.className = 'aviso';
+      aviso.textContent = '';
+      contenedor.innerHTML = '<p class="leyenda">CARGANDO ALUMNOS...</p>';
+      document.getElementById('btn_guardar_calificaciones').disabled = true;
+      try {
+        const parametros = new URLSearchParams({
+          accion: 'lista',
+          grado: grado
+        });
+        const respuesta = await fetch(SCRIPT_URL + '?' + parametros.toString());
+        const resultado = await respuesta.json();
+        if (!resultado.ok || !resultado.alumnos || resultado.alumnos.length === 0) {
+          aviso.className = 'aviso info';
+          aviso.textContent = 'NO HAY ALUMNOS REGISTRADOS EN ' + grado + '.';
+          contenedor.innerHTML = '';
+          return;
+        }
+        califAlumnos = resultado.alumnos;
+        await cargarNotasPrevias(fecha, grado, campo);
+        pintarAlumnosCalificaciones();
+      } catch (e) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'NO SE PUDIERON CARGAR LOS ALUMNOS. VERIFICA TU INTERNET.';
+        contenedor.innerHTML = '';
+      }
+    }
+
+    async function cargarNotasPrevias(fecha, grado, campo) {
+      try {
+        const parametros = new URLSearchParams({
+          accion: 'calificaciones_dia',
+          grado: grado,
+          fecha: fecha,
+          campo: campo
+        });
+        const respuesta = await fetch(SCRIPT_URL + '?' + parametros.toString());
+        const resultado = await respuesta.json();
+        notasPrevias = {};
+        if (resultado.ok && resultado.registros) {
+          resultado.registros.forEach(function (r) {
+            notasPrevias[r.codigo] = r.nota;
+          });
+        }
+      } catch (e) {
+        notasPrevias = {};
+      }
+    }
+
+    function pintarAlumnosCalificaciones() {
+      const contenedor = document.getElementById('contenedor_calificaciones');
+      contenedor.innerHTML = '';
+      califAlumnos.forEach(function (alumno) {
+        const fila = document.createElement('div');
+        fila.className = 'alumno';
+        fila.dataset.codigo = alumno.codigo;
+        fila.innerHTML =
+          '<div class="info"><div class="codigo">' + alumno.codigo + '</div>' +
+          '<div class="nombre">' + alumno.nombre + '</div></div>' +
+          '<div class="opciones"><input type="number" class="nota" min="0" max="10" step="0.1" ' +
+          'placeholder="0-10" value="' + (notasPrevias[alumno.codigo] || '') + '"></div>' +
+          '<button type="button" class="ver-historial">VER HISTORIAL</button>' +
+          '<div class="historial"></div>';
+        const botonHistorial = fila.querySelector('.ver-historial');
+        const historialDiv = fila.querySelector('.historial');
+        botonHistorial.addEventListener('click', function () {
+          mostrarHistorial(alumno.codigo, historialDiv, botonHistorial);
+        });
+        contenedor.appendChild(fila);
+      });
+      const previas = Object.keys(notasPrevias);
+      if (previas.length > 0) {
+        contenedor.insertAdjacentHTML('afterbegin',
+          '<p class="leyenda">Este día y campo ya tienen notas guardadas (<b>' + previas.length + '</b> de ' +
+          califAlumnos.length + ' alumnos). Ajusta y vuelve a guardar si es necesario.</p>');
+      }
+      document.getElementById('btn_guardar_calificaciones').disabled = false;
+    }
+
+    document.getElementById('btn_guardar_calificaciones').addEventListener('click', async function () {
+      const fecha = document.getElementById('fecha_calificacion').value;
+      const grado = document.getElementById('grado_calificacion').value;
+      const campo = document.getElementById('campo_calificacion').value;
+      const aviso = document.getElementById('aviso_calificacion');
+      if (!fecha || !grado || !campo) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'SELECCIONA GRUPO, CAMPO FORMATIVO Y FECHA.';
+        return;
+      }
+      const registros = [];
+      let invalida = '';
+      califAlumnos.forEach(function (alumno) {
+        const input = document.querySelector('.alumno[data-codigo="' + alumno.codigo + '"] .nota');
+        const texto = (input ? input.value : '').trim().replace(',', '.');
+        if (texto === '') return;
+        const numero = parseFloat(texto);
+        if (isNaN(numero) || numero < 0 || numero > 10) {
+          invalida = invalida || alumno.nombre;
+          return;
+        }
+        registros.push({ codigo: alumno.codigo, nombre: alumno.nombre, nota: String(numero) });
+      });
+      if (invalida) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'CALIFICACIÓN INVÁLIDA EN ' + invalida + '. USA NÚMEROS DEL 0 AL 10.';
+        return;
+      }
+      if (registros.length === 0) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'ESCRIBE AL MENOS UNA CALIFICACIÓN.';
+        return;
+      }
+      const boton = document.getElementById('btn_guardar_calificaciones');
+      boton.disabled = true;
+      boton.textContent = 'GUARDANDO...';
+      try {
+        const respuesta = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            accion: 'calificacion',
+            fecha: fecha,
+            grado: grado,
+            campo: campo,
+            maestro: maestroActual.nombre,
+            registros: registros
+          })
+        });
+        const resultado = await respuesta.json();
+        if (resultado.ok) {
+          aviso.className = 'aviso exito';
+          aviso.textContent = 'CALIFICACIONES GUARDADAS (' + campo + ' — ' + fecha + ').';
+          await cargarNotasPrevias(fecha, grado, campo);
+          pintarAlumnosCalificaciones();
+        } else {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'OCURRIÓ UN PROBLEMA AL GUARDAR. INTENTA DE NUEVO.';
+        }
+      } catch (e) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'SIN CONEXIÓN. NO SE GUARDÓ. VERIFICA TU INTERNET.';
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'GUARDAR CALIFICACIONES';
+      }
+    });
+
+    document.getElementById('btn_ver_historial').addEventListener('click', verHistorialGrupo);
+
+    function filtrarPorFechas(lista) {
+      const desde = document.getElementById('hist_desde').value;
+      const hasta = document.getElementById('hist_hasta').value;
+      let filtrada = lista;
+      if (desde) {
+        filtrada = filtrada.filter(function (c) { return c.fecha >= desde; });
+      }
+      if (hasta) {
+        filtrada = filtrada.filter(function (c) { return c.fecha <= hasta; });
+      }
+      return filtrada;
+    }
+
+    function verHistorialGrupo() {
+      const contenedor = document.getElementById('historial_grupo');
+      const grado = document.getElementById('grado_calificacion').value;
+      if (!grado) {
+        contenedor.innerHTML = '<p class="leyenda" style="color:var(--error)">SELECCIONA UN GRUPO PARA VER SU HISTORIAL.</p>';
+        return;
+      }
+      const boton = document.getElementById('btn_ver_historial');
+      boton.disabled = true;
+      boton.textContent = 'CARGANDO HISTORIAL...';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'calificaciones_grado',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = filtrarPorFechas(resultado.calificaciones || []);
+          if (lista.length === 0) {
+            contenedor.innerHTML = '<p class="leyenda">NO HAY CALIFICACIONES EN EL RANGO SELECCIONADO DEL GRUPO ' + grado + '.</p>';
+            return;
+          }
+          let filas = '';
+          lista.forEach(function (c) {
+            filas += '<tr>' +
+              '<td>' + fechaBonita(c.fecha) + '</td>' +
+              '<td><b>' + c.codigo + '</b><br><span class="chip ' + (c.nota >= 6 ? 'verde' : 'rojo') + '">' +
+              c.nombre + '</span></td>' +
+              '<td><b>' + c.campo + '</b><br>' + c.maestro + '</td>' +
+              '<td style="font-size:15px;font-weight:700;color:var(--color-secundario)">' + c.nota + '</td>' +
+              '</tr>';
+          });
+          contenedor.innerHTML =
+            '<p class="leyenda" style="margin:0">' + lista.length + ' CALIFICACIONES — ' + grado + '</p>' +
+            '<table class="tabla-historial">' +
+            '<tr><th>FECHA</th><th>ALUMNO</th><th>CAMPO / PROF.</th><th>NOTA</th></tr>' +
+            filas +
+            '</table>';
+        })
+        .catch(function () {
+          contenedor.innerHTML = '<p class="leyenda" style="color:var(--error)">NO SE PUDO CARGAR EL HISTORIAL. VERIFICA TU INTERNET.</p>';
+        })
+        .finally(function () {
+          boton.disabled = false;
+          boton.textContent = 'VER HISTORIAL DEL GRUPO';
+        });
+    }
+
+    function descargarCalificaciones() {
+      const aviso = document.getElementById('aviso_calificacion');
+      const grado = document.getElementById('grado_calificacion').value;
+      if (!grado) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'SELECCIONA UN GRUPO PARA DESCARGAR.';
+        return;
+      }
+      const boton = document.getElementById('btn_descargar_calificaciones');
+      boton.disabled = true;
+      boton.textContent = 'PREPARANDO ARCHIVO...';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'calificaciones_grado',
+        grado: grado
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = filtrarPorFechas(resultado.calificaciones || []);
+          if (lista.length === 0) {
+            aviso.className = 'aviso info';
+            aviso.textContent = 'NO HAY CALIFICACIONES DE ' + grado + ' EN EL RANGO DE FECHAS SELECCIONADO PARA DESCARGAR.';
+            return;
+          }
+          const celda = function (texto) {
+            return '<td>' + String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') + '</td>';
+          };
+          let filas = '';
+          lista.forEach(function (cal) {
+            filas += '<tr>' +
+              celda(cal.fecha) + celda(cal.nombre) + celda(cal.codigo) + celda(cal.grado) +
+              celda(cal.campo) + celda(cal.nota) + celda(cal.maestro) +
+              '</tr>';
+          });
+          const htmlTabla =
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">' +
+            '<head><meta charset="utf-8"></head><body>' +
+            '<table border="1">' +
+            '<tr><th>FECHA</th><th>ALUMNO</th><th>CÓDIGO</th><th>GRADO</th><th>CAMPO FORMATIVO</th><th>NOTA</th><th>MAESTRO</th></tr>' +
+            filas +
+            '</table></body></html>';
+          const blob = new Blob(['\uFEFF' + htmlTabla], {
+            type: 'application/vnd.ms-excel;charset=utf-8'
+          });
+          const enlace = document.createElement('a');
+          enlace.href = URL.createObjectURL(blob);
+          enlace.download = 'CALIFICACIONES_' + grado + '.xls';
+          document.body.appendChild(enlace);
+          enlace.click();
+          document.body.removeChild(enlace);
+          URL.revokeObjectURL(enlace.href);
+          aviso.className = 'aviso exito';
+          aviso.textContent = 'ARCHIVO DESCARGADO (' + lista.length + ' calificaciones EN COLUMNAS).';
+        })
+        .catch(function () {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDO DESCARGAR. VERIFICA TU INTERNET.';
+        })
+.finally(function () {
+          boton.disabled = false;
+          boton.textContent = 'DESCARGAR CALIFICACIONES DEL GRUPO (EXCEL)';
+        });
+    }
+
+    function hoyISO() {
+      const ahora = new Date();
+      const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+      const dia = String(ahora.getDate()).padStart(2, '0');
+      return ahora.getFullYear() + '-' + mes + '-' + dia;
+    }
+
+    function fechaBonita(iso) {
+      const partes = String(iso || '').split('-');
+      if (partes.length !== 3) return String(iso || '');
+      const fecha = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+      if (isNaN(fecha.getTime())) return String(iso || '');
+      const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+      return dias[fecha.getDay()] + ' ' + partes[2] + '-' + partes[1] + '-' + partes[0];
+    }
+
+    function claseEstado(estado) {
+      if (estado === 'ASISTIÓ') return 'verde';
+      if (estado === 'RETARDO') return 'ambar';
+      if (estado === 'FALTA JUSTIFICADA') return 'gris';
+      return 'rojo';
+    }
+
+    function mostrarHistorial(codigo, contenedor, boton) {
+      if (contenedor.classList.contains('visible')) {
+        contenedor.classList.remove('visible');
+        contenedor.innerHTML = '';
+        return;
+      }
+      contenedor.classList.add('visible');
+      contenedor.innerHTML = '<p class="leyenda" style="margin:0">CARGANDO HISTORIAL...</p>';
+      boton.disabled = true;
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'historial', codigo: codigo }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          let html = '<h4>ASISTENCIA</h4>';
+          const asistencias = resultado.asistencias || [];
+          if (asistencias.length === 0) {
+            html += '<p class="leyenda" style="margin:0">SIN REGISTROS DE ASISTENCIA.</p>';
+          } else {
+            asistencias.forEach(function (a) {
+              html += '<div class="renglon"><span>' + fechaBonita(a.fecha) + '</span>' +
+                '<span class="chip ' + claseEstado(a.estado) + '">' + a.estado + '</span></div>';
+            });
+          }
+          html += '<h4>EVALUACIONES</h4>';
+          const calificaciones = resultado.calificaciones || [];
+          if (calificaciones.length === 0) {
+            html += '<p class="leyenda" style="margin:0">SIN EVALUACIONES GUARDADAS TODAVÍA.</p>';
+          } else {
+            calificaciones.forEach(function (c) {
+              html += '<div class="renglon"><span>' + fechaBonita(c.fecha) + ' — <b>' + c.campo + '</b></span>' +
+                '<span style="color:var(--color-secundario);font-weight:700;font-size:15px">' + c.nota + '</span></div>';
+            });
+          }
+          contenedor.innerHTML = html;
+        })
+        .catch(function () {
+          contenedor.innerHTML = '<p class="leyenda" style="margin:0;color:var(--error)">NO SE PUDO CARGAR EL HISTORIAL. VERIFICA TU INTERNET.</p>';
+        })
+        .finally(function () {
+          boton.disabled = false;
+        });
+    }
+
+    document.getElementById('btn_descargar_calificaciones').addEventListener('click', descargarCalificaciones);
+
+    function pintarPanelAsistencia() {
+      document.getElementById('info_grupo_asistencia').textContent = config.asesoria;
+      const aviso = document.getElementById('aviso_asistencia');
+      const boton = document.getElementById('btn_guardar');
+      if (!config.asesoria) {
+        aviso.className = 'aviso info';
+        aviso.textContent = 'PRIMERO GUARDA TU CONFIGURACIÓN (MI CONFIGURACIÓN) PARA REGISTRAR ASISTENCIA.';
+        boton.disabled = true;
+        document.getElementById('fecha_asistencia').disabled = true;
+      } else {
+        boton.disabled = false;
+        document.getElementById('fecha_asistencia').disabled = false;
+      }
+    }
+
+    function limpiarVistaAsistencia() {
+      document.getElementById('chip_dia').innerHTML = '';
+      document.getElementById('contenedor_alumnos').innerHTML = '';
+      const aviso = document.getElementById('aviso_asistencia');
+      aviso.className = 'aviso';
+      aviso.textContent = '';
+      document.getElementById('btn_guardar').disabled = true;
+    }
+
+    document.getElementById('fecha_asistencia').addEventListener('change', async function () {
+      const iso = this.value;
+      if (!iso) return;
+      const informacion = tipoDia(iso);
+      const chip = document.getElementById('chip_dia');
+      if (informacion.tipo === 'clase') {
+        chip.innerHTML = '<br><span class="chip verde">DÍA DE CLASE</span>';
+      } else {
+        chip.innerHTML = '<br><span class="chip rojo">SIN CLASES — ' + informacion.texto + '</span>' +
+          '<br>Próximos días sin clases:<br>' + proximosDiasSinClase(iso, 3).map(function (d) {
+            const f = d.iso.split('-');
+            return '<b>' + f[2] + '/' + f[1] + '/' + f[0] + '</b> (' + d.texto + ')';
+          }).join('<br>');
+      }
+      await cargarAlumnos(iso);
+    });
+
+    async function cargarAlumnos(iso) {
+      const contenedor = document.getElementById('contenedor_alumnos');
+      const aviso = document.getElementById('aviso_asistencia');
+      contenedor.innerHTML = '<p class="leyenda">CARGANDO ALUMNOS...</p>';
+      document.getElementById('btn_guardar').disabled = true;
+      try {
+        const parametros = new URLSearchParams({
+          accion: 'lista',
+          grado: config.asesoria
+        });
+        const respuesta = await fetch(SCRIPT_URL + '?' + parametros.toString());
+        const resultado = await respuesta.json();
+        if (!resultado.ok || !resultado.alumnos || resultado.alumnos.length === 0) {
+          aviso.className = 'aviso info';
+          aviso.textContent = 'NO HAY ALUMNOS REGISTRADOS EN ' + config.asesoria + '. LLENAN PRIMERO LA FICHA.';
+          contenedor.innerHTML = '';
+          return;
+        }
+        alumnosActuales = resultado.alumnos;
+        await cargarPrevios(iso);
+        pintarAlumnos();
+      } catch (e) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'NO SE PUDIERON CARGAR LOS ALUMNOS. VERIFICA TU INTERNET.';
+        contenedor.innerHTML = '';
+      }
+    }
+
+    async function cargarPrevios(iso) {
+      const parametros = new URLSearchParams({
+        accion: 'asistencias',
+        grado: config.asesoria,
+        fecha: iso
+      });
+      const respuesta = await fetch(SCRIPT_URL + '?' + parametros.toString());
+      const resultado = await respuesta.json();
+      if (resultado.ok && resultado.registros) {
+        estadosActuales = {};
+        resultado.registros.forEach(function (r) {
+          estadosActuales[r.codigo] = r.estado;
+        });
+      } else {
+        estadosActuales = {};
+      }
+    }
+
+    function pintarAlumnos() {
+      const contenedor = document.getElementById('contenedor_alumnos');
+      contenedor.innerHTML = '';
+      alumnosActuales.forEach(function (alumno) {
+        const fila = document.createElement('div');
+        fila.className = 'alumno';
+        fila.dataset.codigo = alumno.codigo;
+        fila.innerHTML =
+          '<div class="info"><div class="codigo">' + alumno.codigo + '</div>' +
+          '<div class="nombre">' + alumno.nombre + '</div></div>' +
+          '<div class="opciones">' +
+          '<button type="button" class="asistio" data-estado="ASISTIÓ">ASISTIÓ</button>' +
+          '<button type="button" class="retardo" data-estado="RETARDO">RETARDO</button>' +
+          '<button type="button" class="falta" data-estado="FALTA">FALTA</button>' +
+          '<button type="button" class="justificada" data-estado="FALTA JUSTIFICADA">FALTA JUSTIFICADA</button>' +
+          '</div>' +
+          '<button type="button" class="ver-historial">VER HISTORIAL</button>' +
+          '<div class="historial"></div>';
+        const botonHistorial = fila.querySelector('.ver-historial');
+        const historialDiv = fila.querySelector('.historial');
+        botonHistorial.addEventListener('click', function () {
+          mostrarHistorial(alumno.codigo, historialDiv, botonHistorial);
+        });
+        const botones = fila.querySelectorAll('button');
+        botones.forEach(function (boton) {
+          boton.addEventListener('click', function () {
+            const estado = boton.dataset.estado;
+            const yaActivo = boton.classList.contains('activo');
+            botones.forEach(function (b) { b.classList.remove('activo'); });
+            if (yaActivo) {
+              delete estadosActuales[alumno.codigo];
+            } else {
+              boton.classList.add('activo');
+              estadosActuales[alumno.codigo] = estado;
+            }
+          });
+        });
+        contenedor.appendChild(fila);
+      });
+      const previo = Object.keys(estadosActuales);
+      if (previo.length > 0) {
+        contenedor.insertAdjacentHTML('afterbegin',
+          '<p class="leyenda">Este día ya tiene registros guardados: <b>' + previo.length + '</b> de ' +
+          alumnosActuales.length + ' alumnos. Ajusta y vuelve a guardar si es necesario.</p>');
+      }
+      document.getElementById('btn_guardar').disabled = false;
+    }
+
+    async function guardarAsistencia() {
+      const iso = document.getElementById('fecha_asistencia').value;
+      if (!iso) return;
+      const boton = document.getElementById('btn_guardar');
+      boton.disabled = true;
+      boton.textContent = 'GUARDANDO...';
+      const registros = alumnosActuales.map(function (alumno) {
+        return {
+          codigo: alumno.codigo,
+          nombre: alumno.nombre,
+          estado: estadosActuales[alumno.codigo] || ''
+        };
+      });
+      try {
+        const respuesta = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            accion: 'asistencia',
+            fecha: iso,
+            grado: config.asesoria,
+            maestro: maestroActual.nombre,
+            registros: registros
+          })
+        });
+        const resultado = await respuesta.json();
+        const aviso = document.getElementById('aviso_asistencia');
+        if (resultado.ok) {
+          aviso.className = 'aviso exito';
+          aviso.textContent = 'ASISTENCIA GUARDADA CORRECTAMENTE (' + iso + ').';
+        } else {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'OCURRIÓ UN PROBLEMA. INTENTA DE NUEVO.';
+        }
+      } catch (e) {
+        const aviso = document.getElementById('aviso_asistencia');
+        aviso.className = 'aviso error';
+        aviso.textContent = 'NO HAY CONEXIÓN. VERIFICA TU INTERNET.';
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'GUARDAR ASISTENCIA';
+      }
+    }
+
+    document.getElementById('btn_guardar').addEventListener('click', guardarAsistencia);
+
+    const sesionGuardada = localStorage.getItem(CLAVE_SESION);
+    if (sesionGuardada) {
+      entrarComo(sesionGuardada);
+    }
+    const codigoUrl = new URLSearchParams(window.location.search).get('codigo');
+    if (codigoUrl) {
+      entrarComo(codigoUrl.trim().toUpperCase());
+      history.replaceState(null, '', window.location.pathname);
+    }
+  </script>
+</body>
+</html>
