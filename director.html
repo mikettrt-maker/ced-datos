@@ -492,8 +492,20 @@
         <div class="tarjeta">
           <h3>ENVIAR AVISO A LOS PADRES</h3>
           <div class="campo">
+            <label for="tipo_envio">DESTINO *</label>
+            <div class="eleccion" id="eleccion_envio">
+              <button type="button" class="opcion activa" data-tipo="grupo">A TODO EL GRUPO</button>
+              <button type="button" class="opcion" data-tipo="individual">A UN PADRE (CÓDIGO ALUMNO)</button>
+            </div>
+          </div>
+          <div class="campo" id="campo_grupo_destino">
             <label for="grado_aviso">GRUPO DESTINO *</label>
             <select id="grado_aviso"></select>
+          </div>
+          <div class="campo" id="campo_individual_destino" style="display:none">
+            <label for="codigo_alumno_aviso">CÓDIGO DEL ALUMNO *</label>
+            <input type="text" id="codigo_alumno_aviso" placeholder="EJ. CED-26-X7KM4P" maxlength="14">
+            <p class="leyenda">El aviso solo lo verá el padre de ese alumno.</p>
           </div>
           <p class="leyenda" style="margin-top:0;margin-bottom:10px">Elige el mensaje:</p>
           <div id="mensajes_aviso"></div>
@@ -544,6 +556,7 @@
     let directorActual = null;
     let alumnosTodos = [];
     let mensajeSeleccionado = '';
+    let tipoEnvio = 'grupo';
 
     const vistaLogin = document.getElementById('vista_login');
     const vistaPanel = document.getElementById('vista_panel');
@@ -568,6 +581,7 @@
       vistaLogin.classList.remove('activa');
       vistaPanel.classList.add('activa');
       pintarMensajesAviso();
+      initTipoEnvio();
       cargarHistorialAvisos();
     }
 
@@ -980,13 +994,48 @@
       });
     }
 
+    function initTipoEnvio() {
+      document.querySelectorAll('#eleccion_envio .opcion').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+          tipoEnvio = boton.dataset.tipo;
+          document.querySelectorAll('#eleccion_envio .opcion').forEach(function (b) {
+            b.classList.toggle('activa', b === boton);
+          });
+          document.getElementById('campo_grupo_destino').style.display = tipoEnvio === 'grupo' ? 'block' : 'none';
+          document.getElementById('campo_individual_destino').style.display = tipoEnvio === 'individual' ? 'block' : 'none';
+          document.getElementById('aviso_aviso').className = 'aviso';
+          document.getElementById('aviso_aviso').textContent = '';
+        });
+      });
+      document.getElementById('codigo_alumno_aviso').addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+      });
+    }
+
     document.getElementById('btn_enviar_aviso').addEventListener('click', function () {
       const aviso = document.getElementById('aviso_aviso');
-      const grado = document.getElementById('grado_aviso').value;
-      if (!grado) {
-        aviso.className = 'aviso error';
-        aviso.textContent = 'SELECCIONA UN GRUPO.';
-        return;
+      let grado = '';
+      let codigo = '';
+      if (tipoEnvio === 'grupo') {
+        grado = document.getElementById('grado_aviso').value;
+        if (!grado) {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'SELECCIONA UN GRUPO.';
+          return;
+        }
+      } else {
+        grado = document.getElementById('grado_aviso').value;
+        if (!grado) {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'SELECCIONA UN GRUPO (PARA SABER QUÉ GRUPO ES EL ALUMNO).';
+          return;
+        }
+        codigo = document.getElementById('codigo_alumno_aviso').value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
+        if (!codigo || !/^CED-\d{2}-[A-Z0-9]{6}$/.test(codigo)) {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'ESCRIBE UN CÓDIGO DE ALUMNO VÁLIDO (FORMATO: CED-26-XXXXXX).';
+          return;
+        }
       }
       if (!mensajeSeleccionado) {
         aviso.className = 'aviso error';
@@ -1002,14 +1051,17 @@
           accion: 'notificacion',
           maestro: directorActual.nombre,
           grado: grado,
-          mensaje: mensajeSeleccionado
+          mensaje: mensajeSeleccionado,
+          codigo: codigo
         })
       })
         .then(function (respuesta) { return respuesta.json(); })
         .then(function (resultado) {
           if (resultado.ok) {
             aviso.className = 'aviso exito';
-            aviso.textContent = 'AVISO ENVIADO A LOS PADRES DEL GRUPO ' + grado + '.';
+            aviso.textContent = tipoEnvio === 'grupo'
+              ? 'AVISO ENVIADO A LOS PADRES DEL GRUPO ' + grado + '.'
+              : 'AVISO ENVIADO AL PADRE DEL ALUMNO ' + codigo + ' (' + grado + ').';
             mensajeSeleccionado = '';
             document.querySelectorAll('#mensajes_aviso .opcion').forEach(function (o) {
               o.classList.remove('seleccionada');

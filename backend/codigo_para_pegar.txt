@@ -235,7 +235,12 @@ function obtenerHojaNotificaciones() {
   let hoja = libro.getSheetByName(NOTIF_SHEET);
   if (!hoja) {
     hoja = libro.insertSheet(NOTIF_SHEET);
-    hoja.appendRow(['Fecha', 'Maestro', 'Grado', 'Mensaje']);
+    hoja.appendRow(['Fecha', 'Maestro', 'Grado', 'Mensaje', 'Código alumno']);
+  } else {
+    // asegurar que exista la 5ª columna
+    if (hoja.getLastColumn() < 5) {
+      hoja.getRange(1, 5).setValue('Código alumno');
+    }
   }
   return hoja;
 }
@@ -261,7 +266,8 @@ function guardarNotificacion(datos) {
     fechaLargaEnEspanol(),
     datos.maestro || '',
     datos.grado || '',
-    datos.mensaje || ''
+    datos.mensaje || '',
+    datos.codigo || ''
   ]);
   return respuesta({ ok: true });
 }
@@ -280,7 +286,8 @@ function leerNotificaciones(grado) {
         fila: fila,
         fecha: String(celdas[fila][0] || ''),
         maestro: String(celdas[fila][1] || ''),
-        mensaje: String(celdas[fila][3] || '')
+        mensaje: String(celdas[fila][3] || ''),
+        codigo: String(celdas[fila][4] || '')
       });
     }
   }

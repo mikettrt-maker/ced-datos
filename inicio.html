@@ -444,17 +444,21 @@
           if (!resultado.ok) {
             throw new Error('error');
           }
-          const lista = resultado.notificaciones || [];
+          const lista = (resultado.notificaciones || []).filter(function (aviso) {
+            // mostrar si es aviso grupal (sin código) o si coincide con el código del hijo
+            return !aviso.codigo || aviso.codigo === codigo;
+          });
           if (lista.length === 0) {
             contenedor.innerHTML = 'AÚN NO HAY AVISOS PARA EL GRUPO ' + grado + '.';
             return;
           }
           contenedor.innerHTML = '';
           lista.slice(0, 10).forEach(function (aviso) {
+            const esIndividual = aviso.codigo && aviso.codigo === codigo;
             const item = document.createElement('div');
             item.className = 'aviso-item';
             item.innerHTML =
-              '<div class="mensaje">' + aviso.mensaje + '</div>' +
+              '<div class="mensaje">' + aviso.mensaje + (esIndividual ? ' <span class="chip azul">PARA TU HIJO</span>' : '') + '</div>' +
               '<div class="meta">' + aviso.maestro + ' — ' + aviso.fecha + '</div>';
             contenedor.appendChild(item);
           });
