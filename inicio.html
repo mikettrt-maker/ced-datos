@@ -24,6 +24,7 @@
       font-family: "Segoe UI", Arial, sans-serif;
       color: var(--texto);
       min-height: 100vh;
+      overflow-x: hidden;
     }
     .vista { display: none; }
     .vista.activa { display: flex; }
@@ -142,14 +143,16 @@
     .eleccion {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
     .eleccion .opcion {
       flex: 1;
-      padding: 12px;
+      min-width: 0;
+      padding: 11px 6px;
       border: 1.5px solid #cfdbe8;
       border-radius: 8px;
       background: var(--tarjeta);
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       text-transform: uppercase;

@@ -26,6 +26,7 @@
       background: var(--fondo);
       color: var(--texto);
       min-height: 100vh;
+      overflow-x: hidden;
     }
     .vista { display: none; }
     .vista.activa { display: block; }
@@ -54,7 +55,7 @@
       flex-shrink: 0;
     }
     header.barra h1 {
-      font-size: 15px;
+      font-size: 14px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -145,10 +146,14 @@
       display: flex;
       gap: 8px;
       margin-bottom: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
     }
+    .pestanas::-webkit-scrollbar { display: none; }
     .pestanas button {
-      flex: 1;
-      padding: 12px;
+      flex: 0 0 auto;
+      padding: 12px 14px;
       border: 1.5px solid #cfdbe8;
       border-radius: 10px;
       background: var(--tarjeta);
@@ -157,6 +162,7 @@
       cursor: pointer;
       text-transform: uppercase;
       color: var(--texto);
+      white-space: nowrap;
     }
     .pestanas button.activa {
       background: var(--color-primario);
@@ -334,6 +340,7 @@
       border-radius: 50%;
       flex-shrink: 0;
     }
+    .opcion > span:last-child { min-width: 0; }
     .opcion.seleccionada {
       border-color: var(--color-primario);
       background: #eef6fd;

@@ -26,6 +26,7 @@
       background: var(--fondo);
       color: var(--texto);
       min-height: 100vh;
+      overflow-x: hidden;
     }
     .vista { display: none; }
     .vista.activa { display: block; }
@@ -54,7 +55,7 @@
       flex-shrink: 0;
     }
     header.barra h1 {
-      font-size: 15px;
+      font-size: 14px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -145,18 +146,23 @@
       display: flex;
       gap: 8px;
       margin-bottom: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
     }
+    .pestanas::-webkit-scrollbar { display: none; }
     .pestanas button {
-      flex: 1;
-      padding: 12px;
+      flex: 0 0 auto;
+      padding: 12px 14px;
       border: 1.5px solid #cfdbe8;
       border-radius: 10px;
       background: var(--tarjeta);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       text-transform: uppercase;
       color: var(--texto);
+      white-space: nowrap;
     }
     .pestanas button.activa {
       background: var(--color-primario);
@@ -238,6 +244,7 @@
       height: 100%;
     }
     .opcion.materia { font-size: 13px; padding: 10px 12px; }
+    .opcion > span:last-child { min-width: 0; }
     .materias-grado { border-left: 3px solid #D9E7EF; margin: 0 0 14px 10px; padding-left: 12px; display: none; }
     .materias-grado.visible { display: block; }
     .materias-grado .titulo { font-size: 12px; color: var(--color-primario); font-weight: 700; margin: 4px 0 8px; }
@@ -329,17 +336,18 @@
     .alumno .info { flex: 1; min-width: 160px; }
     .alumno .info .codigo { font-size: 11px; color: #7a8a9a; }
     .alumno .info .nombre { font-size: 13px; font-weight: 700; }
-    .opciones { display: flex; gap: 6px; }
+    .opciones { display: flex; gap: 6px; flex-wrap: wrap; }
     .opciones button {
       border: 1.5px solid #cfdbe8;
       background: var(--tarjeta);
       border-radius: 8px;
       padding: 8px 10px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       text-transform: uppercase;
       color: var(--texto);
+      white-space: nowrap;
     }
     .opciones button.asistio.activo { background: var(--color-secundario); border-color: var(--color-secundario); color: #fff; }
     .opciones button.retardo.activo { background: var(--ambar); border-color: var(--ambar); color: #fff; }
