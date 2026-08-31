@@ -402,6 +402,12 @@
       evento.preventDefault();
       const codigo = campoUsuario.value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
       const aviso = document.getElementById('aviso_login');
+
+      if (tipoAcceso === 'alumno') {
+        window.location.href = 'index.html';
+        return;
+      }
+
       const patron = /^CED-\d{2}-[A-Z0-9]{6}$/;
       if (!patron.test(codigo)) {
         aviso.textContent = 'ESCRIBE EL CÓDIGO. FORMATO: CED-26-XXXXXX.';
@@ -426,8 +432,6 @@
         window.location.href = 'director.html?codigo=' + encodeURIComponent(codigo);
         return;
       }
-      aviso.classList.remove('visible');
-      entrarPadre(codigo);
     });
 
     function entrarPadre(codigo) {
