@@ -396,7 +396,7 @@
           b.classList.toggle('activa', b === boton);
         });
         if (tipoAcceso === 'alumno') {
-          window.location.href = 'index.html';
+          window.location.href = 'ficha.html';
         }
       });
     });
@@ -407,7 +407,7 @@
       const aviso = document.getElementById('aviso_login');
 
       if (tipoAcceso === 'alumno') {
-        window.location.href = 'index.html';
+        window.location.href = 'ficha.html';
         return;
       }
 
@@ -537,7 +537,7 @@
     }
 
     document.getElementById('btn_registrar').addEventListener('click', function () {
-      window.location.href = 'index.html';
+      window.location.href = 'ficha.html';
     });
 
     document.getElementById('btn_salir').addEventListener('click', function () {

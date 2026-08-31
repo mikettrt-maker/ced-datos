@@ -2,12 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0;url=inicio.html">
-  <title>Redirigiendo...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>CED - Entrada</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4E93B8">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,137 +30,526 @@
     body {
       font-family: 'Patrick Hand', cursive;
       font-size: 20px;
-      background: var(--fondo);
       color: var(--texto);
       min-height: 100vh;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
-    header {
-      background: linear-gradient(135deg, var(--color-primario), #2F77A0);
+    .vista { display: none; }
+    .vista.activa { display: flex; }
+
+    .splash {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, var(--color-primario), #2F77A0);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       color: #fff;
       text-align: center;
-      padding: 28px 16px 40px;
+      padding: 24px;
+      transition: opacity .6s ease;
     }
-    header .logo {
-      width: 110px;
-      height: 110px;
-      margin: 0 auto 12px;
+    .splash.oculta { opacity: 0; pointer-events: none; }
+    .splash .logo {
+      width: 200px;
+      height: 200px;
       border-radius: 50%;
       object-fit: cover;
       background: #fff;
-      display: block;
+      animation: pulso 1.6s ease-in-out infinite;
     }
-    header h1 { font-size: 22px; }
-    header p { opacity: .9; margin-top: 4px; font-size: 14px; }
-    main {
-      max-width: 560px;
-      margin: -24px auto 40px;
-      padding: 0 16px;
+    @keyframes pulso {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: .85; }
     }
-    form.tarjeta {
+    .splash h1 {
+      margin-top: 22px;
+      font-size: 26px;
+      letter-spacing: 2px;
+    }
+    .splash p {
+      margin-top: 6px;
+      font-size: 14px;
+      opacity: .85;
+    }
+    .barra {
+      width: 220px;
+      height: 6px;
+      background: rgba(255, 255, 255, .25);
+      border-radius: 6px;
+      margin-top: 26px;
+      overflow: hidden;
+    }
+    .barra .progreso {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      border-radius: 6px;
+      transition: width .25s linear;
+    }
+    .splash .etiqueta {
+      margin-top: 12px;
+      font-size: 12px;
+      opacity: .8;
+      letter-spacing: 1px;
+    }
+
+    .login {
+      min-height: 100vh;
+      background: var(--fondo);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .login .tarjeta {
       background: var(--tarjeta);
       border-radius: 14px;
-      padding: 22px 20px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 400px;
       box-shadow: 0 6px 20px rgba(13, 74, 128, .15);
+      text-align: center;
     }
-    .seccion {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--color-primario);
-      border-bottom: 2px solid #D9E7EF;
-      padding-bottom: 8px;
-      margin: 26px 0 16px;
+    .login .logo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      margin: 0 auto 14px;
+      display: block;
     }
-    .seccion:first-of-type { margin-top: 0; }
-    .campo { margin-bottom: 16px; }
-    .campo label {
+    .login h2 { font-size: 20px; }
+    .login .subtitulo {
+      font-size: 13px;
+      color: #7a8a9a;
+      margin: 6px 0 20px;
+    }
+    .login .campo { text-align: left; margin-bottom: 16px; }
+    .login .campo label {
       display: block;
       font-weight: 600;
       font-size: 14px;
       margin-bottom: 6px;
     }
-    .campo input,
-    .campo select,
-    .campo textarea {
+    .login .campo input {
       width: 100%;
       padding: 12px;
       border: 1.5px solid #cfdbe8;
       border-radius: 8px;
       font-size: 15px;
       font-family: inherit;
-      background: #fbfdff;
       text-transform: uppercase;
+      background: #fbfdff;
     }
-    .campo input:focus,
-    .campo select:focus,
-    .campo textarea:focus {
+    .login .campo input:focus {
       outline: none;
       border-color: var(--color-primario);
       background: #fff;
     }
-    .campo .opcional {
-      font-weight: 400;
-      font-size: 12px;
-      color: #7a8a9a;
-      text-transform: none;
+    .eleccion {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .campo .ayuda {
-      font-weight: 400;
-      font-size: 12px;
-      color: #7a8a9a;
-      text-transform: none;
-      margin-top: 6px;
-    }
-    .dos-columnas {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 12px;
-    }
-    @media (max-width: 460px) {
-      .dos-columnas { grid-template-columns: 1fr; }
-    }
-    .agregar-tel {
-      display: inline-block;
-      margin-top: 4px;
-      background: none;
-      border: 1.5px dashed var(--color-primario);
-      color: var(--color-primario);
+    .eleccion .opcion {
+      flex: 1;
+      min-width: 0;
+      padding: 11px 6px;
+      border: 1.5px solid #cfdbe8;
       border-radius: 8px;
-      padding: 9px 14px;
-      font-size: 14px;
-      font-weight: 600;
+      background: var(--tarjeta);
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
-      width: auto;
-      text-transform: none;
+      text-transform: uppercase;
+      color: var(--texto);
     }
-    button.enviar {
+    .eleccion .opcion.activa {
+      background: var(--color-primario);
+      border-color: var(--color-primario);
+      color: #fff;
+    }
+    .login button {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
+      padding: 13px;
       background: var(--color-secundario);
       color: #fff;
       border: none;
       border-radius: 8px;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
       cursor: pointer;
       text-transform: uppercase;
     }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .aviso {
+    .login button:disabled { opacity: .6; cursor: not-allowed; }
+    .login .aviso {
       display: none;
-      text-align: center;
-      padding: 18px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      font-size: 15px;
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: #fdecea;
+      color: var(--error);
+      border: 1.5px solid var(--error);
     }
-    .aviso.exito { display: block; background: #FDE9EF; color: #B84A6A; border: 1.5px solid var(--color-secundario); }
-    .aviso.error { display: block; background: #fdecea; color: var(--error); border: 1.5px solid var(--error); }
-    .pie { text-align: center; font-size: 12px; color: #7a8a9a; margin-top: 18px; }
+    .login .aviso.visible { display: block; }
+
+    .placeholder {
+      min-height: 100vh;
+      background: var(--fondo);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      text-align: center;
+    }
+    .placeholder .tarjeta {
+      background: var(--tarjeta);
+      border-radius: 14px;
+      padding: 34px 26px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 6px 20px rgba(13, 74, 128, .15);
+      overflow-x: hidden;
+    }
+    .placeholder .logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+      margin: 0 auto 14px;
+      display: block;
+    }
+    .placeholder h2 { font-size: 19px; color: var(--color-primario); }
+    .placeholder p { font-size: 13px; color: #7a8a9a; margin: 10px 0 18px; }
+    .placeholder .lista {
+      text-align: left;
+      font-size: 13px;
+      color: var(--texto);
+      background: #f0f6fc;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      line-height: 1.8;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    .placeholder .lista span { font-weight: 700; color: var(--color-primario); }
+    #banner_aviso {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, var(--color-secundario), #d63384);
+      color: #fff;
+      padding: 14px 16px;
+      z-index: 9999;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      animation: banner_slide 0.4s ease;
+      cursor: pointer;
+    }
+    #banner_aviso .banner_remitente {
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+    @keyframes banner_slide {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .placeholder .aviso-item {
+      background: #fff;
+      border: 1.5px solid #D9E7EF;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      text-align: left;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    .placeholder .aviso-item .mensaje { font-weight: 700; font-size: 13px; color: var(--texto); word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 100%; }
+    .placeholder .aviso-item .meta { font-size: 11px; color: #7a8a9a; margin-top: 4px; }
+    .placeholder .aviso-item .campo-nombre { font-weight: 700; font-size: 13px; color: var(--color-primario); margin-top: 4px; }
+    .placeholder .aviso-item .nota-nombre { font-size: 12px; color: #7a8a9a; margin-top: 2px; }
+    .placeholder .aviso-item .nota-fuerte { font-size: 17px; font-weight: 800; color: var(--color-secundario); }
+    .chip { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; vertical-align: middle; }
+    .chip.azul { background: #D9E7EF; color: var(--color-primario); }
+    .placeholder button + button { margin-top: 10px; }
+    #btn_registrar { display: none; background: var(--color-secundario); }
+    .placeholder .nota { font-size: 11px; color: #7a8a9a; margin-top: 14px; }
+    .placeholder button {
+      width: 100%;
+      padding: 12px;
+      background: var(--color-primario);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
-  <p style="text-align:center;margin-top:40vh;font-family:sans-serif;color:#7a8a9a">Redirigiendo...</p>
-  <script>window.location.href = 'inicio.html';</script>
+
+  <div id="splash" class="vista splash activa">
+    <img src="logo.svg" alt="Logo" class="logo">
+    <h1>CED</h1>
+    <p>CICLO ESCOLAR 2026-2027</p>
+    <div class="barra"><div class="progreso" id="progreso"></div></div>
+    <div class="etiqueta" id="etiqueta">CARGANDO...</div>
+  </div>
+
+  <div id="login" class="vista login">
+    <div class="tarjeta">
+      <img src="logo.svg" alt="Logo" class="logo">
+      <h2>INICIAR SESIÓN</h2>
+      <p class="subtitulo">Escribe tu código y selecciona cómo entrarás</p>
+      <form id="formulario_login">
+        <div class="campo">
+          <label for="tipo_acceso">ACCEDES COMO *</label>
+          <div class="eleccion" id="eleccion">
+            <button type="button" class="opcion activa" data-tipo="alumno">PADRE DE FAMILIA</button>
+            <button type="button" class="opcion" data-tipo="profesor">PROFESOR</button>
+            <button type="button" class="opcion" data-tipo="director">DIRECTOR</button>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="usuario">CÓDIGO *</label>
+          <input type="text" id="usuario" placeholder="EJ. CED-26-X7KM4P" maxlength="14">
+        </div>
+        <button type="submit" id="btn_entrar">ENTRAR</button>
+      </form>
+      <div class="aviso" id="aviso_login">ESCRIBE EL CÓDIGO. FORMATO: CED-26-XXXXXX.</div>
+    </div>
+  </div>
+
+  <div id="placeholder" class="vista placeholder">
+    <div class="tarjeta">
+      <img src="logo.svg" alt="Logo" class="logo">
+      <h2>PANEL DEL PADRE DE FAMILIA</h2>
+      <p id="codigo_mostrado"></p>
+      <p id="info_hijo"></p>
+      <div class="lista" id="calificaciones_lista" style="display:none">
+        <span id="calificaciones_titulo">ANECDÓTICO</span><br>
+        <div id="calificaciones_contenido"></div>
+      </div>
+      <button type="button" id="btn_registrar">REGISTRAR A MI HIJO(A)</button>
+      <button type="button" id="btn_salir">SALIR</button>
+    </div>
+  </div>
+
+  <script src="maestros.js"></script>
+  <script src="directores.js"></script>
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLp3ZNDnXMHRoqtEo3yNHo7lLPlH8IqozsEERUcoA-fShI-9JkrLhnc6ewrTm_Z8gmKQ/exec';
+    const splash = document.getElementById('splash');
+    const login = document.getElementById('login');
+    const placeholder = document.getElementById('placeholder');
+    const progreso = document.getElementById('progreso');
+    const etiqueta = document.getElementById('etiqueta');
+
+    let avance = 0;
+    const paso = Math.random() * 4 + 5;
+    const temporizador = setInterval(function () {
+      avance = Math.min(100, avance + paso);
+      progreso.style.width = avance + '%';
+      if (avance >= 100) {
+        clearInterval(temporizador);
+        setTimeout(function () {
+          splash.classList.add('oculta');
+          setTimeout(function () {
+            splash.classList.remove('activa', 'oculta');
+            login.classList.add('activa');
+            document.getElementById('usuario').focus();
+          }, 600);
+        }, 350);
+      } else {
+        etiqueta.textContent = 'CARGANDO... ' + Math.round(avance) + '%';
+      }
+    }, 80);
+
+    const campoUsuario = document.getElementById('usuario');
+    campoUsuario.addEventListener('input', function () {
+      campoUsuario.value = campoUsuario.value.toUpperCase();
+    });
+
+    let tipoAcceso = 'alumno';
+    document.querySelectorAll('#eleccion .opcion').forEach(function (boton) {
+      boton.addEventListener('click', function () {
+        tipoAcceso = boton.dataset.tipo;
+        document.querySelectorAll('#eleccion .opcion').forEach(function (b) {
+          b.classList.toggle('activa', b === boton);
+        });
+        if (tipoAcceso === 'alumno') {
+          window.location.href = 'ficha.html';
+        }
+      });
+    });
+
+    document.getElementById('formulario_login').addEventListener('submit', function (evento) {
+      evento.preventDefault();
+      const codigo = campoUsuario.value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
+      const aviso = document.getElementById('aviso_login');
+
+      if (tipoAcceso === 'alumno') {
+        window.location.href = 'ficha.html';
+        return;
+      }
+
+      const patron = /^CED-\d{2}-[A-Z0-9]{6}$/;
+      if (!patron.test(codigo)) {
+        aviso.textContent = 'ESCRIBE EL CÓDIGO. FORMATO: CED-26-XXXXXX.';
+        aviso.classList.add('visible');
+        return;
+      }
+      if (tipoAcceso === 'profesor') {
+        if (!maestroPorCodigo(codigo)) {
+          aviso.textContent = 'ESE CÓDIGO NO PERTENECE A UN PROFESOR REGISTRADO.';
+          aviso.classList.add('visible');
+          return;
+        }
+        window.location.href = 'profesor.html?codigo=' + encodeURIComponent(codigo);
+        return;
+      }
+      if (tipoAcceso === 'director') {
+        if (!directorPorCodigo(codigo)) {
+          aviso.textContent = 'ESE CÓDIGO NO PERTENECE AL DIRECTOR.';
+          aviso.classList.add('visible');
+          return;
+        }
+        window.location.href = 'director.html?codigo=' + encodeURIComponent(codigo);
+        return;
+      }
+    });
+
+    function entrarPadre(codigo) {
+      codigoPadreActual = codigo;
+      const boton = document.getElementById('btn_entrar');
+      boton.disabled = true;
+      boton.textContent = 'BUSCANDO...';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'buscar',
+        codigo: codigo
+      }).toString())
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          boton.disabled = false;
+          boton.textContent = 'ENTRAR';
+          const aviso = document.getElementById('aviso_login');
+          if (!resultado.ok || !resultado.datos) {
+            aviso.textContent = 'ESE CÓDIGO NO ESTÁ REGISTRADO. PRIMERO LLENA LA FICHA DE TU HIJO(A).';
+            aviso.classList.add('visible');
+            return;
+          }
+          const datos = resultado.datos;
+          const nombre = [datos['Alumno ap. paterno'], datos['Alumno ap. materno'], datos['Alumno nombre(s)']]
+            .filter(Boolean).join(' ').trim();
+          const grado = String(datos['Grado'] || '');
+          document.getElementById('codigo_mostrado').innerHTML =
+            'HIJO(A): <strong>' + nombre + '</strong>';
+          document.getElementById('info_hijo').textContent = 'GRUPO: ' + grado;
+          document.getElementById('btn_registrar').style.display = 'none';
+          login.classList.remove('activa');
+          placeholder.classList.add('activa');
+          gradoActual = grado;
+          cargarAnecdoticoHijo(codigo);
+        })
+        .catch(function () {
+          boton.disabled = false;
+          boton.textContent = 'ENTRAR';
+          const aviso = document.getElementById('aviso_login');
+          aviso.textContent = 'SIN CONEXIÓN. VERIFICA TU INTERNET E INTENTA DE NUEVO.';
+          aviso.classList.add('visible');
+        });
+    }
+
+    function fechaBonita(valor) {
+      const texto = String(valor || '').trim();
+      let fecha = null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+        fecha = new Date(texto + 'T12:00:00');
+      } else {
+        fecha = new Date(texto);
+      }
+      if (isNaN(fecha.getTime())) {
+        return texto;
+      }
+      const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+      const dd = String(fecha.getDate()).padStart(2, '0');
+      const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+      return dias[fecha.getDay()] + ' ' + dd + '-' + mm + '-' + fecha.getFullYear();
+    }
+
+    let codigoPadreActual = '';
+    let gradoActual = '';
+
+    function cargarAnecdoticoHijo(codigo) {
+      const bloque = document.getElementById('calificaciones_lista');
+      const contenedor = document.getElementById('calificaciones_contenido');
+      const titulo = document.getElementById('calificaciones_titulo');
+      contenedor.innerHTML = 'CARGANDO ANECDÓTICO...';
+      bloque.style.display = 'block';
+      fetch(SCRIPT_URL + '?' + new URLSearchParams({
+        accion: 'anecdotico_alumno',
+        codigo: codigo,
+        t: Date.now()
+      }).toString(), { cache: 'no-store' })
+        .then(function (respuesta) { return respuesta.json(); })
+        .then(function (resultado) {
+          if (!resultado.ok) {
+            throw new Error('error');
+          }
+          const lista = resultado.registros || [];
+          if (lista.length === 0) {
+            bloque.style.display = 'none';
+            return;
+          }
+          titulo.textContent = 'ANECDÓTICO';
+          contenedor.innerHTML = '';
+          lista.forEach(function (r) {
+            const item = document.createElement('div');
+            item.className = 'aviso-item';
+            item.innerHTML =
+              '<div class="mensaje">' + fechaBonita(r.fecha) + '</div>' +
+              '<div class="nota-nombre">' + r.nota + '</div>' +
+              '<div class="meta" style="font-size:11px;color:#7a8a9a;margin-top:4px">' + r.maestro + '</div>';
+            contenedor.appendChild(item);
+          });
+        })
+        .catch(function () {
+          bloque.style.display = 'none';
+        });
+    }
+
+    document.getElementById('btn_registrar').addEventListener('click', function () {
+      window.location.href = 'ficha.html';
+    });
+
+    document.getElementById('btn_salir').addEventListener('click', function () {
+      document.title = 'CED - Control Escolar Digital';
+      placeholder.classList.remove('activa');
+      login.classList.add('activa');
+      campoUsuario.value = '';
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js?v=' + Date.now()).catch(function () {});
+    }
+  </script>
 </body>
 </html>
