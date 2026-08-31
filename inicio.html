@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>CED - Entrada</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4E93B8">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
   <style>
     :root {
       --color-primario: #4E93B8;
@@ -21,10 +28,12 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 20px;
       color: var(--texto);
       min-height: 100vh;
       overflow-x: hidden;
+      max-width: 100vw;
     }
     .vista { display: none; }
     .vista.activa { display: flex; }
@@ -204,6 +213,7 @@
       width: 100%;
       max-width: 400px;
       box-shadow: 0 6px 20px rgba(13, 74, 128, .15);
+      overflow-x: hidden;
     }
     .placeholder .logo {
       width: 76px;
@@ -225,8 +235,39 @@
       padding: 12px 16px;
       margin-bottom: 18px;
       line-height: 1.8;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      max-width: 100%;
     }
     .placeholder .lista span { font-weight: 700; color: var(--color-primario); }
+    #banner_aviso {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, var(--color-secundario), #d63384);
+      color: #fff;
+      padding: 14px 16px;
+      z-index: 9999;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      animation: banner_slide 0.4s ease;
+      cursor: pointer;
+    }
+    #banner_aviso .banner_remitente {
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+    @keyframes banner_slide {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
     .placeholder .aviso-item {
       background: #fff;
       border: 1.5px solid #D9E7EF;
@@ -234,12 +275,18 @@
       padding: 10px 12px;
       margin-bottom: 8px;
       text-align: left;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      max-width: 100%;
     }
-    .placeholder .aviso-item .mensaje { font-weight: 700; font-size: 13px; color: var(--texto); }
+    .placeholder .aviso-item .mensaje { font-weight: 700; font-size: 13px; color: var(--texto); word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 100%; }
     .placeholder .aviso-item .meta { font-size: 11px; color: #7a8a9a; margin-top: 4px; }
     .placeholder .aviso-item .campo-nombre { font-weight: 700; font-size: 13px; color: var(--color-primario); margin-top: 4px; }
     .placeholder .aviso-item .nota-nombre { font-size: 12px; color: #7a8a9a; margin-top: 2px; }
     .placeholder .aviso-item .nota-fuerte { font-size: 17px; font-weight: 800; color: var(--color-secundario); }
+    .chip { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; vertical-align: middle; }
+    .chip.azul { background: #D9E7EF; color: var(--color-primario); }
     .placeholder button + button { margin-top: 10px; }
     #btn_registrar { display: none; background: var(--color-secundario); }
     .placeholder .nota { font-size: 11px; color: #7a8a9a; margin-top: 14px; }
@@ -297,18 +344,12 @@
       <h2>PANEL DEL PADRE DE FAMILIA</h2>
       <p id="codigo_mostrado"></p>
       <p id="info_hijo"></p>
-      <div class="lista" id="avisos_lista">
-        <span>AVISOS DEL PROFESOR</span><br>
-        <div id="avisos_contenido">CARGANDO AVISOS...</div>
-      </div>
       <div class="lista" id="calificaciones_lista" style="display:none">
-        <span id="calificaciones_titulo">CALIFICACIONES DE LA SEMANA</span><br>
+        <span id="calificaciones_titulo">ANECDÓTICO</span><br>
         <div id="calificaciones_contenido"></div>
-        <button type="button" id="btn_historial" style="display:none;margin-top:8px;width:100%;padding:9px;border:1.5px solid #cfdbe8;border-radius:8px;background:#fff;color:var(--texto);font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase">VER TODO EL HISTORIAL</button>
       </div>
       <button type="button" id="btn_registrar">REGISTRAR A MI HIJO(A)</button>
       <button type="button" id="btn_salir">SALIR</button>
-      <p class="nota" id="nota_sesion">Los avisos los envían los profesores desde su portal.</p>
     </div>
   </div>
 
@@ -418,8 +459,8 @@
           document.getElementById('btn_registrar').style.display = 'none';
           login.classList.remove('activa');
           placeholder.classList.add('activa');
-          cargarAvisos(grado, codigo);
-          cargarCalificaciones(codigo);
+          gradoActual = grado;
+          cargarAnecdoticoHijo(codigo);
         })
         .catch(function () {
           boton.disabled = false;
@@ -427,45 +468,6 @@
           const aviso = document.getElementById('aviso_login');
           aviso.textContent = 'SIN CONEXIÓN. VERIFICA TU INTERNET E INTENTA DE NUEVO.';
           aviso.classList.add('visible');
-        });
-    }
-
-    function cargarAvisos(grado, codigo) {
-      const contenedor = document.getElementById('avisos_contenido');
-      const nota = document.getElementById('nota_sesion');
-      contenedor.innerHTML = 'CARGANDO AVISOS...';
-      nota.textContent = 'Los avisos los envían los profesores desde su portal.';
-      fetch(SCRIPT_URL + '?' + new URLSearchParams({
-        accion: 'notificaciones',
-        grado: grado
-      }).toString())
-        .then(function (respuesta) { return respuesta.json(); })
-        .then(function (resultado) {
-          if (!resultado.ok) {
-            throw new Error('error');
-          }
-          const lista = (resultado.notificaciones || []).filter(function (aviso) {
-            // mostrar si es aviso grupal (sin código) o si coincide con el código del hijo
-            return !aviso.codigo || aviso.codigo === codigo;
-          });
-          if (lista.length === 0) {
-            contenedor.innerHTML = 'AÚN NO HAY AVISOS PARA EL GRUPO ' + grado + '.';
-            return;
-          }
-          contenedor.innerHTML = '';
-          lista.slice(0, 10).forEach(function (aviso) {
-            const esIndividual = aviso.codigo && aviso.codigo === codigo;
-            const item = document.createElement('div');
-            item.className = 'aviso-item';
-            item.innerHTML =
-              '<div class="mensaje">' + aviso.mensaje + (esIndividual ? ' <span class="chip azul">PARA TU HIJO</span>' : '') + '</div>' +
-              '<div class="meta">' + aviso.maestro + ' — ' + aviso.fecha + '</div>';
-            contenedor.appendChild(item);
-          });
-          nota.textContent = 'ÚLTIMA REVISIÓN HECHA CON EL CÓDIGO ' + codigo + '.';
-        })
-        .catch(function () {
-          contenedor.innerHTML = 'NO SE PUDIERON CARGAR LOS AVISOS. VERIFICA TU INTERNET.';
         });
     }
 
@@ -486,129 +488,61 @@
       return dias[fecha.getDay()] + ' ' + dd + '-' + mm + '-' + fecha.getFullYear();
     }
 
-    let mostrarTodo = false;
     let codigoPadreActual = '';
+    let gradoActual = '';
 
-    function semanaActual() {
-      const hoy = new Date();
-      const dia = hoy.getDay();
-      const diff = dia === 0 ? -6 : 1 - dia;
-      const lunes = new Date(hoy);
-      lunes.setDate(hoy.getDate() + diff);
-      const viernes = new Date(lunes);
-      viernes.setDate(lunes.getDate() + 4);
-      return { lunes: lunes, viernes: viernes, hoy: hoy };
-    }
-
-    function aISO(fecha) {
-      return fecha.getFullYear() + '-' +
-        String(fecha.getMonth() + 1).padStart(2, '0') + '-' +
-        String(fecha.getDate()).padStart(2, '0');
-    }
-
-    function filtradasDeLaSemana(lista) {
-      const semana = semanaActual();
-      const dial = semana.hoy.getDay();
-      if (dial === 0 || dial === 6) {
-        return { lista: [], finDeSemana: true };
-      }
-      const desde = aISO(semana.lunes);
-      const hasta = aISO(semana.hoy);
-      const limpias = lista.filter(function (cal) {
-        return /^\d{4}-\d{2}-\d{2}$/.test(cal.fecha);
-      });
-      return {
-        lista: limpias.filter(function (cal) {
-          return cal.fecha >= desde && cal.fecha <= hasta;
-        }),
-        finDeSemana: false
-      };
-    }
-
-    function cargarCalificaciones(codigo) {
+    function cargarAnecdoticoHijo(codigo) {
       const bloque = document.getElementById('calificaciones_lista');
       const contenedor = document.getElementById('calificaciones_contenido');
       const titulo = document.getElementById('calificaciones_titulo');
-      const botonHistorial = document.getElementById('btn_historial');
-      contenedor.innerHTML = 'CARGANDO CALIFICACIONES...';
+      contenedor.innerHTML = 'CARGANDO ANECDÓTICO...';
+      bloque.style.display = 'block';
       fetch(SCRIPT_URL + '?' + new URLSearchParams({
-        accion: 'calificaciones',
-        codigo: codigo
-      }).toString())
+        accion: 'anecdotico_alumno',
+        codigo: codigo,
+        t: Date.now()
+      }).toString(), { cache: 'no-store' })
         .then(function (respuesta) { return respuesta.json(); })
         .then(function (resultado) {
           if (!resultado.ok) {
             throw new Error('error');
           }
-          const lista = resultado.calificaciones || [];
+          const lista = resultado.registros || [];
           if (lista.length === 0) {
             bloque.style.display = 'none';
             return;
           }
-          bloque.style.display = 'block';
-          let visibles = [];
-          if (mostrarTodo) {
-            visibles = lista.filter(function (cal) {
-              return /^\d{4}-\d{2}-\d{2}$/.test(cal.fecha);
-            });
-            titulo.textContent = 'CALIFICACIONES — HISTORIAL COMPLETO';
-          } else {
-            const semana = filtradasDeLaSemana(lista);
-            if (semana.finDeSemana) {
-              contenedor.innerHTML = 'FIN DE SEMANA: LAS NOTAS DE LA SEMANA SE REINICIAN EL LUNES. EL HISTORIAL SIGUE GUARDADO.';
-              botonHistorial.style.display = 'block';
-              botonHistorial.textContent = 'VER TODO EL HISTORIAL';
-              return;
-            }
-            visibles = semana.lista;
-            const lunes = semanaActual().lunes;
-            const viernes = semanaActual().viernes;
-            titulo.textContent =
-              'CALIFICACIONES DE LA SEMANA (' +
-              String(lunes.getDate()).padStart(2, '0') + '/' + String(lunes.getMonth() + 1).padStart(2, '0') +
-              ' AL ' +
-              String(viernes.getDate()).padStart(2, '0') + '/' + String(viernes.getMonth() + 1).padStart(2, '0') + ')';
-          }
-          if (visibles.length === 0) {
-            contenedor.innerHTML = 'AÚN NO HAY CALIFICACIONES REGISTRADAS ESTA SEMANA.';
-          } else {
-            contenedor.innerHTML = '';
-            visibles.forEach(function (cal) {
-              const item = document.createElement('div');
-              item.className = 'aviso-item';
-              item.innerHTML =
-                '<div class="mensaje">' + fechaBonita(cal.fecha) + '</div>' +
-                '<div class="campo-nombre">' + cal.campo + '</div>' +
-                '<div class="nota-nombre">NOTA: <span class="nota-fuerte">' + cal.nota + '</span> — ' + cal.maestro + '</div>';
-              contenedor.appendChild(item);
-            });
-          }
-          if (mostrarTodo) {
-            botonHistorial.textContent = 'VER SOLO LA SEMANA ACTUAL';
-          } else {
-            botonHistorial.textContent = 'VER TODO EL HISTORIAL';
-          }
-          botonHistorial.style.display = 'block';
+          titulo.textContent = 'ANECDÓTICO';
+          contenedor.innerHTML = '';
+          lista.forEach(function (r) {
+            const item = document.createElement('div');
+            item.className = 'aviso-item';
+            item.innerHTML =
+              '<div class="mensaje">' + fechaBonita(r.fecha) + '</div>' +
+              '<div class="nota-nombre">' + r.nota + '</div>' +
+              '<div class="meta" style="font-size:11px;color:#7a8a9a;margin-top:4px">' + r.maestro + '</div>';
+            contenedor.appendChild(item);
+          });
         })
         .catch(function () {
           bloque.style.display = 'none';
         });
     }
 
-    document.getElementById('btn_historial').addEventListener('click', function () {
-      mostrarTodo = !mostrarTodo;
-      cargarCalificaciones(codigoPadreActual);
-    });
-
     document.getElementById('btn_registrar').addEventListener('click', function () {
       window.location.href = 'index.html';
     });
 
     document.getElementById('btn_salir').addEventListener('click', function () {
+      document.title = 'CED - Control Escolar Digital';
       placeholder.classList.remove('activa');
       login.classList.add('activa');
       campoUsuario.value = '';
     });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js?v=' + Date.now()).catch(function () {});
+    }
   </script>
 </body>
 </html>

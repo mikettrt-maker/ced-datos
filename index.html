@@ -8,7 +8,11 @@
   <meta name="theme-color" content="#4E93B8">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
   <style>
     :root {
       --color-primario: #4E93B8;
@@ -20,7 +24,8 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 20px;
       background: var(--fondo);
       color: var(--texto);
       min-height: 100vh;
@@ -283,6 +288,11 @@
         <input type="text" id="mama_ocupacion" name="mama_ocupacion" placeholder="EJ. AMA DE CASA, ENFERMERA, COMERCIANTE">
       </div>
 
+      <div class="campo">
+        <label for="mama_edad">Edad</label>
+        <input type="number" id="mama_edad" name="mama_edad" placeholder="EJ. 35" min="15" max="99" inputmode="numeric" required>
+      </div>
+
       <div class="seccion">Datos del padre</div>
 
       <div class="dos-columnas">
@@ -315,6 +325,11 @@
       <div class="campo">
         <label for="papa_ocupacion">Ocupación</label>
         <input type="text" id="papa_ocupacion" name="papa_ocupacion" placeholder="EJ. INGENIERO, ALBAÑIL, CHOFER">
+      </div>
+
+      <div class="campo">
+        <label for="papa_edad">Edad</label>
+        <input type="number" id="papa_edad" name="papa_edad" placeholder="EJ. 38" min="15" max="99" inputmode="numeric" required>
       </div>
 
       <div class="seccion">Contacto adicional (en caso de no localizar a los padres)</div>
@@ -574,12 +589,14 @@
         mama_tel: formulario.mama_tel.value.trim(),
         mama_cel: formulario.mama_cel.value.trim(),
         mama_ocupacion: formulario.mama_ocupacion.value.trim(),
+        mama_edad: formulario.mama_edad.value.trim(),
         papa_ap: formulario.papa_ap.value.trim(),
         papa_am: formulario.papa_am.value.trim(),
         papa_nombres: formulario.papa_nombres.value.trim(),
         papa_tel: formulario.papa_tel.value.trim(),
         papa_cel: formulario.papa_cel.value.trim(),
         papa_ocupacion: formulario.papa_ocupacion.value.trim(),
+        papa_edad: formulario.papa_edad.value.trim(),
         emergencia_ap: formulario.emergencia_ap.value.trim(),
         emergencia_am: formulario.emergencia_am.value.trim(),
         emergencia_nombres: formulario.emergencia_nombres.value.trim(),

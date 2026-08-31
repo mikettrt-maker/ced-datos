@@ -4,7 +4,7 @@
   Después: Implementar > Administrar implementaciones > lápiz >
   Versión: Nueva versión > Implementar. La URL queda igual.
   No necesitas crear las pestañas "Asistencias", "Config",
-  "Notificaciones" ni "Calificaciones": el código las crea solas.
+  "Notificaciones", "Calificaciones" ni "Chat": el código las crea solas.
 *********************************************************************/
 
 const SPREADSHEET_ID = '1mB7u7dUvLh6DuJHukbLfWyd-Ne1nFfT6K3rS_RomiZo';
@@ -13,6 +13,9 @@ const ASISTENCIA_SHEET = 'Asistencias';
 const CONFIG_SHEET = 'Config';
 const NOTIF_SHEET = 'Notificaciones';
 const CALIF_SHEET = 'Calificaciones';
+const CHAT_SHEET = 'Chat';
+const EVAL_SHEET = 'EvalContinua';
+const PM_SHEET = 'PalabrasMinuto';
 
 function doPost(e) {
   try {
@@ -29,8 +32,26 @@ function doPost(e) {
     if (datos.accion === 'notificacion_borrar') {
       return borrarNotificacion(datos);
     }
+    if (datos.accion === 'notificacion_borrar_todos') {
+      return borrarTodasNotificaciones(datos);
+    }
+    if (datos.accion === 'notificaciones_leer') {
+      return leerNotificaciones(String(datos.grado || ''));
+    }
     if (datos.accion === 'calificacion') {
       return guardarCalificacion(datos);
+    }
+    if (datos.accion === 'anecdotico_guardar') {
+      return guardarAnecdotico(datos);
+    }
+    if (datos.accion === 'chat_enviar') {
+      return chatEnviar(datos);
+    }
+    if (datos.accion === 'evalcontinua_guardar') {
+      return guardarEvalContinua(datos);
+    }
+    if (datos.accion === 'palabrasminuto_guardar') {
+      return guardarPalabrasMinuto(datos);
     }
     return guardarFicha(datos);
   } catch (error) {
@@ -62,12 +83,14 @@ function guardarFicha(datos) {
     'Mamá teléfono',
     'Mamá celular',
     'Mamá ocupación',
+    'Mamá edad',
     'Papá ap. paterno',
     'Papá ap. materno',
     'Papá nombre(s)',
     'Papá teléfono',
     'Papá celular',
     'Papá ocupación',
+    'Papá edad',
     'Emergencia ap. paterno',
     'Emergencia ap. materno',
     'Emergencia nombre(s)',
@@ -101,12 +124,14 @@ function guardarFicha(datos) {
     datos.mama_tel || '',
     datos.mama_cel || '',
     datos.mama_ocupacion || '',
+    datos.mama_edad || '',
     datos.papa_ap || '',
     datos.papa_am || '',
     datos.papa_nombres || '',
     datos.papa_tel || '',
     datos.papa_cel || '',
     datos.papa_ocupacion || '',
+    datos.papa_edad || '',
     datos.emergencia_ap || '',
     datos.emergencia_am || '',
     datos.emergencia_nombres || '',
@@ -305,6 +330,22 @@ function borrarNotificacion(datos) {
   return respuesta({ ok: true });
 }
 
+function borrarTodasNotificaciones(datos) {
+  const grado = String(datos.grado || '');
+  const hoja = obtenerHojaNotificaciones();
+  const celdas = hoja.getDataRange().getValues();
+  const filasABorrar = [];
+  for (let fila = celdas.length - 1; fila > 0; fila--) {
+    if (String(celdas[fila][2]) === grado) {
+      filasABorrar.push(fila + 1);
+    }
+  }
+  filasABorrar.forEach(function (numeroFila) {
+    hoja.deleteRow(numeroFila);
+  });
+  return respuesta({ ok: true, eliminados: filasABorrar.length });
+}
+
 function obtenerHojaCalificaciones() {
   const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
   let hoja = libro.getSheetByName(CALIF_SHEET);
@@ -439,6 +480,114 @@ function leerCalificacionesGrado(grado) {
   return respuesta({ ok: true, calificaciones: lista });
 }
 
+function guardarAnecdotico(datos) {
+  const hoja = obtenerHojaCalificaciones();
+  const fecha = normalizarFechaISO(datos.fecha);
+  const grado = String(datos.grado || '');
+  const celdas = hoja.getDataRange().getValues();
+  const filasABorrar = [];
+  for (let fila = celdas.length - 1; fila > 0; fila--) {
+    if (String(celdas[fila][0]) === fecha &&
+      String(celdas[fila][3]) === grado &&
+      String(celdas[fila][4]) === 'ANECDÓTICO') {
+      filasABorrar.push(fila + 1);
+    }
+  }
+  filasABorrar.sort(function (a, b) { return b - a; });
+  filasABorrar.forEach(function (numeroFila) {
+    hoja.deleteRow(numeroFila);
+  });
+  (datos.registros || []).forEach(function (registro) {
+    const nota = String(registro.nota || '').trim();
+    if (!nota) return;
+    hoja.appendRow([
+      fecha,
+      registro.codigo || '',
+      registro.nombre || '',
+      grado,
+      'ANECDÓTICO',
+      nota,
+      datos.maestro || ''
+    ]);
+  });
+  return respuesta({ ok: true });
+}
+
+function leerAnecdotico(grado) {
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(CALIF_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, registros: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][3]) === grado &&
+      String(celdas[fila][4]) === 'ANECDÓTICO') {
+      lista.push({
+        fecha: normalizarFechaISO(String(celdas[fila][0] || '')),
+        codigo: String(celdas[fila][1] || ''),
+        nombre: String(celdas[fila][2] || ''),
+        grado: String(celdas[fila][3] || ''),
+        nota: String(celdas[fila][5] || ''),
+        maestro: String(celdas[fila][6] || '')
+      });
+    }
+  }
+  lista.reverse();
+  return respuesta({ ok: true, registros: lista });
+}
+
+function leerAnecdoticoDia(grado, fecha) {
+  const fechaISO = normalizarFechaISO(fecha);
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(CALIF_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, registros: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][0]) === fechaISO &&
+      String(celdas[fila][3]) === grado &&
+      String(celdas[fila][4]) === 'ANECDÓTICO') {
+      lista.push({
+        fecha: normalizarFechaISO(String(celdas[fila][0] || '')),
+        codigo: String(celdas[fila][1] || ''),
+        nombre: String(celdas[fila][2] || ''),
+        grado: String(celdas[fila][3] || ''),
+        nota: String(celdas[fila][5] || ''),
+        maestro: String(celdas[fila][6] || '')
+      });
+    }
+  }
+  return respuesta({ ok: true, registros: lista });
+}
+
+function leerAnecdoticoAlumno(codigo) {
+  codigo = String(codigo || '').trim().toUpperCase();
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(CALIF_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, registros: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][1]).trim().toUpperCase() === codigo &&
+      String(celdas[fila][4]) === 'ANECDÓTICO') {
+      lista.push({
+        fecha: normalizarFechaISO(String(celdas[fila][0] || '')),
+        grado: String(celdas[fila][3] || ''),
+        nota: String(celdas[fila][5] || ''),
+        maestro: String(celdas[fila][6] || '')
+      });
+    }
+  }
+  lista.reverse();
+  return respuesta({ ok: true, registros: lista });
+}
+
 function historialAlumno(codigo) {
   codigo = String(codigo || '').trim().toUpperCase();
   const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -518,6 +667,30 @@ function doGet(e) {
         String(e.parameter.fecha || ''),
         String(e.parameter.campo || '')
       );
+    }
+    if (accion === 'anecdotico_leer') {
+      return leerAnecdotico(String(e.parameter.grado || ''));
+    }
+    if (accion === 'anecdotico_dia') {
+      return leerAnecdoticoDia(
+        String(e.parameter.grado || ''),
+        String(e.parameter.fecha || '')
+      );
+    }
+    if (accion === 'anecdotico_alumno') {
+      return leerAnecdoticoAlumno(String(e.parameter.codigo || ''));
+    }
+    if (accion === 'chat_leer') {
+      return chatLeer(e.parameter);
+    }
+    if (accion === 'evalcontinua_leer') {
+      return leerEvalContinua(String(e.parameter.grado || ''), String(e.parameter.trimestre || ''));
+    }
+    if (accion === 'evalcontinua_alumno') {
+      return leerEvalContinuaAlumno(String(e.parameter.codigo || ''));
+    }
+    if (accion === 'palabrasminuto_leer') {
+      return leerPalabrasMinuto(String(e.parameter.grado || ''));
     }
     return buscarPorCodigo(String(e.parameter.codigo || ''));
   } catch (error) {
@@ -616,6 +789,229 @@ function leerAsistencias(grado, fecha) {
       registros.push({
         codigo: String(celdas[fila][1] || ''),
         estado: String(celdas[fila][4] || '')
+      });
+    }
+  }
+  return respuesta({ ok: true, registros: registros });
+}
+
+function obtenerHojaChat() {
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let hoja = libro.getSheetByName(CHAT_SHEET);
+  if (!hoja) {
+    hoja = libro.insertSheet(CHAT_SHEET);
+    hoja.appendRow(['Fecha', 'De', 'Para', 'Tipo', 'Mensaje', 'Nombre de', 'ID']);
+  }
+  return hoja;
+}
+
+function chatLeer(params) {
+  const hoja = obtenerHojaChat();
+  const desde = parseInt(params.desde) || 0;
+  const tipo = String(params.tipo || '');
+  const de = String(params.de || '');
+  const para = String(params.para || '');
+  const datos = hoja.getDataRange().getValues();
+  const mensajes = [];
+  for (let i = 1; i < datos.length; i++) {
+    const fila = datos[i];
+    const id = parseInt(fila[6]) || i;
+    if (id <= desde) continue;
+    const msgTipo = String(fila[3]);
+    if (tipo && msgTipo !== tipo) continue;
+    if (tipo === 'individual') {
+      const msgDe = String(fila[1]);
+      const msgPara = String(fila[2]);
+      const paridad = (msgDe === de && msgPara === para) || (msgDe === para && msgPara === de);
+      if (!paridad) continue;
+    }
+    mensajes.push({
+      id: id,
+      fecha: String(fila[0]),
+      de: String(fila[1]),
+      para: String(fila[2]),
+      tipo: msgTipo,
+      mensaje: String(fila[4]),
+      nombre_de: String(fila[5]),
+      hora: ''
+    });
+  }
+  return respuesta({ ok: true, mensajes: mensajes });
+}
+
+function chatEnviar(datos) {
+  const hoja = obtenerHojaChat();
+  const fecha = new Date();
+  const fechaStr = Utilities.formatDate(fecha, 'America/Mexico_City', 'dd/MM/yyyy HH:mm');
+  const ultimaFila = hoja.getLastRow();
+  const nuevoId = ultimaFila;
+  hoja.appendRow([
+    fechaStr,
+    String(datos.de || ''),
+    String(datos.para || ''),
+    String(datos.tipo || 'grupo'),
+    String(datos.mensaje || ''),
+    String(datos.nombre_de || ''),
+    nuevoId
+  ]);
+  return respuesta({ ok: true });
+}
+
+function obtenerHojaEvalContinua() {
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let hoja = libro.getSheetByName(EVAL_SHEET);
+  if (!hoja) {
+    hoja = libro.insertSheet(EVAL_SHEET);
+    hoja.appendRow([
+      'Grado', 'Trimestre', 'Código Alumno', 'Nombre Alumno',
+      'Materia', 'Maestro', 'Progresiones JSON', 'Batería',
+      'Proyecto', 'Escala JSON', 'Definitiva', 'Fecha'
+    ]);
+  }
+  return hoja;
+}
+
+function guardarEvalContinua(datos) {
+  const hoja = obtenerHojaEvalContinua();
+  const grado = String(datos.grado || '');
+  const trimestre = String(datos.trimestre || '');
+  const materia = String(datos.materia || '');
+  const maestro = String(datos.maestro || '');
+  const celdas = hoja.getDataRange().getValues();
+  const filasABorrar = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][0]) === grado &&
+      String(celdas[fila][1]) === trimestre &&
+      String(celdas[fila][4]) === materia &&
+      String(celdas[fila][5]) === maestro) {
+      filasABorrar.push(fila + 1);
+    }
+  }
+  filasABorrar.sort(function (a, b) { return b - a; });
+  filasABorrar.forEach(function (numeroFila) {
+    hoja.deleteRow(numeroFila);
+  });
+  const ahora = new Date();
+  const fechaStr = Utilities.formatDate(ahora, 'America/Mexico_City', 'dd/MM/yyyy HH:mm');
+  (datos.registros || []).forEach(function (r) {
+    hoja.appendRow([
+      grado,
+      trimestre,
+      r.codigo || '',
+      r.nombre || '',
+      materia,
+      maestro,
+      JSON.stringify(r.progresiones || []),
+      String(r.bateria || ''),
+      String(r.proyecto || ''),
+      JSON.stringify(r.escala || {}),
+      String(r.definitiva || ''),
+      fechaStr
+    ]);
+  });
+  return respuesta({ ok: true });
+}
+
+function leerEvalContinua(grado, trimestre) {
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(EVAL_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, registros: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][0]) === grado &&
+      String(celdas[fila][1]) === trimestre) {
+      lista.push({
+        codigo: String(celdas[fila][2] || ''),
+        nombre: String(celdas[fila][3] || ''),
+        materia: String(celdas[fila][4] || ''),
+        maestro: String(celdas[fila][5] || ''),
+        progresiones: parsearJson(String(celdas[fila][6] || '[]'), []),
+        bateria: String(celdas[fila][7] || ''),
+        proyecto: String(celdas[fila][8] || ''),
+        escala: parsearJson(String(celdas[fila][9] || '{}'), {}),
+        definitiva: String(celdas[fila][10] || ''),
+        fecha: String(celdas[fila][11] || '')
+      });
+    }
+  }
+  return respuesta({ ok: true, registros: lista });
+}
+
+function leerEvalContinuaAlumno(codigo) {
+  codigo = String(codigo || '').trim().toUpperCase();
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(EVAL_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, registros: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][2]).trim().toUpperCase() === codigo) {
+      lista.push({
+        grado: String(celdas[fila][0] || ''),
+        trimestre: String(celdas[fila][1] || ''),
+        materia: String(celdas[fila][4] || ''),
+        maestro: String(celdas[fila][5] || ''),
+        progresiones: parsearJson(String(celdas[fila][6] || '[]'), []),
+        bateria: String(celdas[fila][7] || ''),
+        proyecto: String(celdas[fila][8] || ''),
+        escala: parsearJson(String(celdas[fila][9] || '{}'), {}),
+        definitiva: String(celdas[fila][10] || ''),
+        fecha: String(celdas[fila][11] || '')
+      });
+    }
+  }
+  return respuesta({ ok: true, registros: lista });
+}
+
+function obtenerHojaPalabrasMinuto() {
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let hoja = libro.getSheetByName(PM_SHEET);
+  if (!hoja) {
+    hoja = libro.insertSheet(PM_SHEET);
+  }
+  return hoja;
+}
+
+function guardarPalabrasMinuto(datos) {
+  const hoja = obtenerHojaPalabrasMinuto();
+  if (hoja.getLastRow() === 0) {
+    hoja.appendRow(['Fecha', 'Grado', 'Maestro', 'Código Alumno', 'Nombre Alumno', 'Palabras Por Minuto']);
+  }
+  const fecha = datos.fecha || '';
+  const grado = datos.grado || '';
+  const maestro = datos.maestro || '';
+  const registros = datos.registros || [];
+  registros.forEach(function (r) {
+    hoja.appendRow([
+      fecha,
+      grado,
+      maestro,
+      r.codigo || '',
+      r.nombre || '',
+      r.palabras || 0
+    ]);
+  });
+  return respuesta({ ok: true, guardados: registros.length });
+}
+
+function leerPalabrasMinuto(grado) {
+  const hoja = obtenerHojaPalabrasMinuto();
+  const celdas = hoja.getDataRange().getValues();
+  const registros = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][1]).trim().toUpperCase() === grado.toUpperCase()) {
+      registros.push({
+        fecha: String(celdas[fila][0] || ''),
+        grado: String(celdas[fila][1] || ''),
+        maestro: String(celdas[fila][2] || ''),
+        codigo: String(celdas[fila][3] || ''),
+        nombre: String(celdas[fila][4] || ''),
+        palabras: Number(celdas[fila][5]) || 0
       });
     }
   }

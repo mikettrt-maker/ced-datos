@@ -1,0 +1,25 @@
+=====================================
+  CED - USUARIOS Y CÓDIGOS DE ACCESO
+  Ciclo Escolar 2026-2027
+=====================================
+
+--- DIRECTOR ---
+
+  Código:    CED-26-ZX7QR4
+  Nombre:    DIRECCIÓN
+
+--- PROFESORES ---
+
+  Código:    CED-26-QZV46P    Nombre: PROF. MIGUEL
+  Código:    CED-26-T8X4RJ    Nombre: PROFA. BETUKY
+  Código:    CED-26-QG9YJY    Nombre: PROF. ALE
+  Código:    CED-26-DA2RW5    Nombre: PROFA. NANCY
+  Código:    CED-26-QN9387    Nombre: PROFA. EVELYN
+  Código:    CED-26-AFS5BF    Nombre: PROFA. JOHANY
+
+--- ALUMNOS ---
+
+  Los códigos de alumnos se generan automáticamente
+  al llenar la ficha de registro (formato: CED-26-XXXXXX).
+
+=====================================
