@@ -1879,6 +1879,49 @@
       }
     }
 
+    async function mostrarHistorial(codigo, historialDiv, boton) {
+      if (historialDiv.classList.contains('visible')) {
+        historialDiv.classList.remove('visible');
+        boton.textContent = 'VER HISTORIAL';
+        return;
+      }
+      boton.disabled = true;
+      boton.textContent = 'CARGANDO...';
+      historialDiv.innerHTML = '';
+      historialDiv.classList.add('visible');
+      try {
+        var grado = config.asesoria;
+        const resp = await fetch(SCRIPT_URL + '?' + new URLSearchParams({
+          accion: 'asistencias_grado',
+          grado: grado
+        }).toString());
+        const res = await resp.json();
+        if (!res.ok) throw new Error('error');
+        var todas = res.asistencias || [];
+        var filtradas = todas.filter(function (r) { return r.codigo === codigo; });
+        if (filtradas.length === 0) {
+          historialDiv.innerHTML = '<h4>Sin registros de asistencia</h4>';
+          boton.textContent = 'OCULTAR HISTORIAL';
+          boton.disabled = false;
+          return;
+        }
+        filtradas.sort(function (a, b) { return b.fecha.localeCompare(a.fecha); });
+        let filas = '';
+        filtradas.forEach(function (r) {
+          filas += '<div class="renglon">' +
+            '<span>' + fechaBonita(r.fecha) + '</span>' +
+            '<span class="chip ' + claseEstado(r.estado) + '">' + r.estado + '</span>' +
+            '</div>';
+        });
+        historialDiv.innerHTML = '<h4>Historial de asistencia (' + filtradas.length + ' registros)</h4>' + filas;
+        boton.textContent = 'OCULTAR HISTORIAL';
+      } catch (e) {
+        historialDiv.innerHTML = '<h4 style="color:var(--error)">No se pudo cargar. Verifica tu internet.</h4>';
+        boton.textContent = 'REINTENTAR';
+      }
+      boton.disabled = false;
+    }
+
     function pintarAlumnos() {
       const contenedor = document.getElementById('contenedor_alumnos');
       contenedor.innerHTML = '';
