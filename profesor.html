@@ -1416,6 +1416,7 @@
     /* ====== EVALUACIÓN CONTINUA ====== */
     var ecAlumnos = [];
     var ecProgresiones = [];
+    var ecRegistrosPrevios = {};
 
     function initEvalContinua() {
       var gradoSelect = document.getElementById('ec_grado');
@@ -1494,12 +1495,16 @@
         }).toString());
         var res = await resp.json();
         ecProgresiones = [];
+        ecRegistrosPrevios = {};
         if (res.ok && res.registros) {
-          for (var i = 0; i < res.registros.length; i++) {
-            if (res.registros[i].materia === materia && res.registros[i].maestro === maestroActual.nombre) {
-              ecProgresiones = res.registros[i].progresiones || [];
-              break;
-            }
+          var registrosMateria = res.registros.filter(function (r) {
+            return r.materia === materia && r.maestro === maestroActual.nombre;
+          });
+          if (registrosMateria.length > 0) {
+            ecProgresiones = registrosMateria[0].progresiones || [];
+            registrosMateria.forEach(function (r) {
+              ecRegistrosPrevios[r.codigo] = r;
+            });
           }
         }
         if (ecProgresiones.length === 0) {
@@ -1674,6 +1679,33 @@
         inp.addEventListener('change', function () { calcularDefinitivas(); });
       });
       restaurarEstadoEc(estado);
+      if (Object.keys(ecRegistrosPrevios).length > 0) {
+        ecAlumnos.forEach(function (alumno) {
+          var reg = ecRegistrosPrevios[alumno.codigo];
+          if (!reg) return;
+          if (reg.progresiones) {
+            reg.progresiones.forEach(function (p, pidx) {
+              var inp = document.querySelector('.ec-pa-val[data-codigo="' + alumno.codigo + '"][data-pidx="' + pidx + '"]');
+              if (inp && p.valor !== undefined && p.valor !== '') inp.value = p.valor;
+            });
+          }
+          if (reg.bateria) {
+            var bateriaInp = document.querySelector('.ec-bateria[data-codigo="' + alumno.codigo + '"]');
+            if (bateriaInp) bateriaInp.value = reg.bateria;
+          }
+          if (reg.proyecto) {
+            var proyectoInp = document.querySelector('.ec-proyecto[data-codigo="' + alumno.codigo + '"]');
+            if (proyectoInp) proyectoInp.value = reg.proyecto;
+          }
+          if (reg.escala) {
+            Object.keys(reg.escala).forEach(function (key) {
+              var escInp = document.querySelector('.ec-escala[data-codigo="' + alumno.codigo + '"][data-key="' + key + '"]');
+              if (escInp && reg.escala[key]) escInp.value = reg.escala[key];
+            });
+          }
+        });
+        calcularDefinitivas();
+      }
     }
 
     function calcularDefinitivas() {
