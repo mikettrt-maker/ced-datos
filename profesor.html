@@ -1255,6 +1255,9 @@
           return;
         }
         anecdoticoAlumnos = resultado.alumnos;
+        anecdoticoAlumnos.sort(function (a, b) {
+          return (a.nombre || '').localeCompare(b.nombre || '', 'es');
+        });
         await cargarNotasPreviasAnecdotico(grado, fecha);
         if (miId !== renderIdAnecdotico) return;
         pintarAlumnosAnecdotico();
@@ -1476,6 +1479,9 @@
           return;
         }
         ecAlumnos = res.alumnos;
+        ecAlumnos.sort(function (a, b) {
+          return (a.nombre || '').localeCompare(b.nombre || '', 'es');
+        });
         await cargarEvalContinuaPrevio(grado, document.getElementById('ec_trimestre').value, materia);
         pintarEcProgresiones();
         pintarEcAlumnos();
@@ -1884,6 +1890,9 @@
           return;
         }
         alumnosActuales = resultado.alumnos;
+        alumnosActuales.sort(function (a, b) {
+          return (a.nombre || '').localeCompare(b.nombre || '', 'es');
+        });
         await cargarPrevios(iso);
         pintarAlumnos();
       } catch (e) {
@@ -2111,6 +2120,11 @@
           return;
         }
         pmAlumnos = data.alumnos.filter(function (a) { return a.Grado === grado; });
+        pmAlumnos.sort(function (a, b) {
+          var nombreA = [a['Alumno ap. paterno'], a['Alumno ap. materno'], a['Alumno nombre(s)']].filter(Boolean).join(' ');
+          var nombreB = [b['Alumno ap. paterno'], b['Alumno ap. materno'], b['Alumno nombre(s)']].filter(Boolean).join(' ');
+          return nombreA.localeCompare(nombreB, 'es');
+        });
         if (pmAlumnos.length === 0) {
           aviso.className = 'aviso error';
           aviso.textContent = 'NO HAY ALUMNOS EN ESTE GRUPO.';

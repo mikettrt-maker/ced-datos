@@ -1090,6 +1090,9 @@
             throw new Error('error');
           }
           alumnosTodos = resultado.alumnos || [];
+          alumnosTodos.sort(function (a, b) {
+            return nombreCompleto(a).localeCompare(nombreCompleto(b), 'es');
+          });
           const filtro = document.getElementById('grado_alumnos').value;
           const lista = filtro === 'TODOS'
             ? alumnosTodos
