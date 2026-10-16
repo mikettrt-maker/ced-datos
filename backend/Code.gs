@@ -494,6 +494,15 @@ function doGet(e) {
     if (accion === 'asistencias_grado') {
       return leerAsistenciasGrado(String(e.parameter.grado || ''));
     }
+    if (accion === 'asistencias_hoy') {
+      return leerAsistenciasHoy(String(e.parameter.fecha || ''));
+    }
+    if (accion === 'config_todos') {
+      return leerTodosConfigs();
+    }
+    if (accion === 'anecdotico_hoy') {
+      return leerAnecdoticoHoy(String(e.parameter.fecha || ''));
+    }
     if (accion === 'asistencias') {
       return leerAsistencias(String(e.parameter.grado || ''), String(e.parameter.fecha || ''));
     }
@@ -620,4 +629,88 @@ function leerAsistencias(grado, fecha) {
     }
   }
   return respuesta({ ok: true, registros: registros });
+}
+
+function normalizarFechaISO(valor) {
+  const texto = String(valor || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+    return texto;
+  }
+  const f = new Date(texto);
+  if (isNaN(f.getTime())) {
+    return texto;
+  }
+  const a = f.getFullYear();
+  const m = String(f.getMonth() + 1).padStart(2, '0');
+  const d = String(f.getDate()).padStart(2, '0');
+  return a + '-' + m + '-' + d;
+}
+
+function leerAsistenciasHoy(fecha) {
+  const fechaISO = normalizarFechaISO(fecha);
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(ASISTENCIA_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, asistencias: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (normalizarFechaISO(String(celdas[fila][0] || '')) === fechaISO) {
+      lista.push({
+        fecha: normalizarFechaISO(String(celdas[fila][0] || '')),
+        codigo: String(celdas[fila][1] || ''),
+        nombre: String(celdas[fila][2] || ''),
+        grado: String(celdas[fila][3] || ''),
+        estado: String(celdas[fila][4] || ''),
+        maestro: String(celdas[fila][5] || '')
+      });
+    }
+  }
+  return respuesta({ ok: true, asistencias: lista });
+}
+
+function leerTodosConfigs() {
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(CONFIG_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, configs: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    const codigo = String(celdas[fila][0] || '').trim();
+    if (!codigo) continue;
+    lista.push({
+      codigo: codigo,
+      nombre: String(celdas[fila][1] || ''),
+      asesoria: String(celdas[fila][2] || '')
+    });
+  }
+  return respuesta({ ok: true, configs: lista });
+}
+
+function leerAnecdoticoHoy(fecha) {
+  const fechaISO = normalizarFechaISO(fecha);
+  const libro = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = libro.getSheetByName(CALIF_SHEET);
+  if (!hoja) {
+    return respuesta({ ok: true, registros: [] });
+  }
+  const celdas = hoja.getDataRange().getValues();
+  const lista = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (normalizarFechaISO(String(celdas[fila][0] || '')) === fechaISO &&
+      String(celdas[fila][4] || '') === 'ANECDÓTICO') {
+      lista.push({
+        fecha: normalizarFechaISO(String(celdas[fila][0] || '')),
+        codigo: String(celdas[fila][1] || ''),
+        nombre: String(celdas[fila][2] || ''),
+        grado: String(celdas[fila][3] || ''),
+        nota: String(celdas[fila][5] || ''),
+        maestro: String(celdas[fila][6] || '')
+      });
+    }
+  }
+  return respuesta({ ok: true, registros: lista });
 }

@@ -668,6 +668,7 @@
         <button type="button" id="tab_asistencia">ASISTENCIA</button>
         <button type="button" id="tab_evalcontinua">EVAL. CONTINUA</button>
         <button type="button" id="tab_palabrasminuto">PALABRAS/MIN</button>
+        <button type="button" id="tab_monitoreo">MONITOREO</button>
       </div>
 
       <div id="panel_alumnos" class="vista activa">
@@ -767,6 +768,16 @@
           <div id="contenedor_pm_dir"></div>
         </div>
       </div>
+
+      <div id="panel_monitoreo" class="vista">
+        <div class="tarjeta">
+          <h3>MONITOREO DEL DÍA</h3>
+          <p class="leyenda" style="margin-top:0">Consulta qué profesores NO han registrado asistencia ni anecdótico hoy.</p>
+          <button class="guardar secundario" id="btn_monitoreo_verificar">VERIFICAR AHORA</button>
+          <div class="aviso" id="aviso_monitoreo"></div>
+          <div id="contenedor_monitoreo"></div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -861,11 +872,13 @@
       document.getElementById('tab_asistencia').classList.toggle('activa', cual === 'asistencia');
       document.getElementById('tab_evalcontinua').classList.toggle('activa', cual === 'evalcontinua');
       document.getElementById('tab_palabrasminuto').classList.toggle('activa', cual === 'palabrasminuto');
+      document.getElementById('tab_monitoreo').classList.toggle('activa', cual === 'monitoreo');
       document.getElementById('panel_alumnos').classList.toggle('activa', cual === 'alumnos');
       document.getElementById('panel_calificaciones').classList.toggle('activa', cual === 'calificaciones');
       document.getElementById('panel_asistencia').classList.toggle('activa', cual === 'asistencia');
       document.getElementById('panel_evalcontinua').classList.toggle('activa', cual === 'evalcontinua');
       document.getElementById('panel_palabrasminuto').classList.toggle('activa', cual === 'palabrasminuto');
+      document.getElementById('panel_monitoreo').classList.toggle('activa', cual === 'monitoreo');
     }
 
     document.getElementById('tab_alumnos').addEventListener('click', function () {
@@ -889,6 +902,92 @@
       cambiarPestana('palabrasminuto');
       initDirPalabrasMinuto();
     });
+
+    document.getElementById('tab_monitoreo').addEventListener('click', function () {
+      cambiarPestana('monitoreo');
+    });
+
+    document.getElementById('btn_monitoreo_verificar').addEventListener('click', verificarMonitoreo);
+
+    function verificarMonitoreo() {
+      const aviso = document.getElementById('aviso_monitoreo');
+      const contenedor = document.getElementById('contenedor_monitoreo');
+      aviso.className = 'aviso info';
+      aviso.textContent = 'VERIFICANDO...';
+      contenedor.innerHTML = '';
+      const hoy = new Date();
+      const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoy.getDate()).padStart(2, '0');
+      const fechaHoy = hoy.getFullYear() + '-' + mes + '-' + dia;
+
+      Promise.all([
+        fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'config_todos' }).toString()).then(function (r) { return r.json(); }),
+        fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'asistencias_hoy', fecha: fechaHoy }).toString()).then(function (r) { return r.json(); }),
+        fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'anecdotico_hoy', fecha: fechaHoy }).toString()).then(function (r) { return r.json(); })
+      ]).then(function (resultados) {
+        const configRes = resultados[0];
+        const asistRes = resultados[1];
+        const anecRes = resultados[2];
+        if (!configRes.ok || !configRes.configs) {
+          aviso.className = 'aviso error';
+          aviso.textContent = 'NO SE PUDO OBTENER LA CONFIGURACIÓN DE PROFESORES.';
+          return;
+        }
+        const configs = configRes.configs;
+        const asistenciasHoy = (asistRes.ok && asistRes.asistencias) || [];
+        const anecdoticoHoy = (anecRes.ok && anecRes.registros) || [];
+
+        const asistGrados = {};
+        asistenciasHoy.forEach(function (r) { asistGrados[r.grado || r.Grado] = true; });
+        const anecGrados = {};
+        anecdoticoHoy.forEach(function (r) { anecGrados[r.grado] = true; });
+
+        const sinAsistencia = [];
+        const sinAnecdotico = [];
+        configs.forEach(function (c) {
+          if (!c.asesoria) return;
+          if (!asistGrados[c.asesoria]) sinAsistencia.push(c);
+          if (!anecGrados[c.asesoria]) sinAnecdotico.push(c);
+        });
+
+        const horaActual = hoy.getHours();
+        const minutos = String(hoy.getMinutes()).padStart(2, '0');
+        const horaStr = (horaActual % 12 || 12) + ':' + minutos + ' ' + (horaActual >= 12 ? 'PM' : 'AM');
+
+        let html = '<p class="leyenda" style="margin:0 0 10px"><b>Fecha:</b> ' + fechaHoy + ' &nbsp;|&nbsp; <b>Hora:</b> ' + horaStr + '</p>';
+
+        html += '<div class="tarjeta" style="margin-bottom:10px"><h3 style="color:' + (sinAsistencia.length > 0 ? 'var(--rojo)' : '#16a34a') + '">';
+        html += 'ASISTENCIA: ' + (sinAsistencia.length === 0 ? 'TODOS LOS GRUPOS REGISTRADOS' : sinAsistencia.length + ' GRUPO(S) SIN REGISTRO') + '</h3>';
+        if (sinAsistencia.length > 0) {
+          sinAsistencia.forEach(function (c) {
+            html += '<div class="alumno"><div class="info"><div class="nombre">' + c.nombre + '</div>' +
+              '<div class="codigo">Grupo: ' + c.asesoria + '</div></div>' +
+              '<span class="chip rojo">SIN ASISTENCIA</span></div>';
+          });
+        }
+        html += '</div>';
+
+        html += '<div class="tarjeta"><h3 style="color:' + (sinAnecdotico.length > 0 ? 'var(--rojo)' : '#16a34a') + '">';
+        html += 'ANECDÓTICO: ' + (sinAnecdotico.length === 0 ? 'TODOS LOS GRUPOS REGISTRADOS' : sinAnecdotico.length + ' GRUPO(S) SIN REGISTRO') + '</h3>';
+        if (sinAnecdotico.length > 0) {
+          sinAnecdotico.forEach(function (c) {
+            html += '<div class="alumno"><div class="info"><div class="nombre">' + c.nombre + '</div>' +
+              '<div class="codigo">Grupo: ' + c.asesoria + '</div></div>' +
+              '<span class="chip rojo">SIN ANECDÓTICO</span></div>';
+          });
+        }
+        html += '</div>';
+
+        contenedor.innerHTML = html;
+        aviso.className = sinAsistencia.length === 0 && sinAnecdotico.length === 0 ? 'aviso exito' : 'aviso error';
+        aviso.textContent = sinAsistencia.length === 0 && sinAnecdotico.length === 0
+          ? 'TODOS LOS PROFESORES HAN REGISTRADO ASISTENCIA Y ANECDÓTICO HOY.'
+          : 'FALTAN REGISTROS POR COMPLETAR.';
+      }).catch(function () {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'NO SE PUDO VERIFICAR. VERIFICA TU INTERNET.';
+      });
+    }
 
     function initDirEvalContinua() {
       var sel = document.getElementById('ec_dir_grado');
