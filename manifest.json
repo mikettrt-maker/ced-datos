@@ -1,6 +1,7 @@
 {
   "name": "CED - Control Escolar Digital",
   "short_name": "CED",
+  "version": "1.2",
   "description": "Portal de padres de familia - Avisos y calificaciones",
   "start_url": "inicio.html",
   "display": "standalone",

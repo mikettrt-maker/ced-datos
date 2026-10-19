@@ -765,6 +765,29 @@
           <div id="contenedor_alumnos"></div>
           <button class="guardar" id="btn_guardar">GUARDAR ASISTENCIA</button>
         </div>
+        <div class="tarjeta">
+          <h3>HISTORIAL DE ASISTENCIA DEL GRUPO</h3>
+          <div class="campo">
+            <label>FILTRO DE FECHAS</label>
+            <div style="display:flex;gap:10px">
+              <div style="flex:1">
+                <label style="font-size:12px" for="hist_desde">DESDE</label>
+                <input type="date" id="hist_desde">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:12px" for="hist_hasta">HASTA</label>
+                <input type="date" id="hist_hasta">
+              </div>
+            </div>
+            <p class="leyenda">Deja las fechas vacías para ver todo el ciclo escolar.</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="guardar" id="btn_ver_historial_grupo" style="background:var(--color-primario);width:auto;flex:1">VER HISTORIAL</button>
+            <button class="guardar" id="btn_historial_pdf" style="background:var(--color-secundario);width:auto;flex:1">DESCARGAR PDF</button>
+          </div>
+          <div id="aviso_historial" class="aviso"></div>
+          <div id="historial_grupo"></div>
+        </div>
       </div>
 
       <div id="panel_calificaciones" class="vista">
@@ -1423,6 +1446,126 @@
           boton.disabled = false;
           boton.textContent = 'VER HISTORIAL';
         });
+    });
+
+    /* ====== HISTORIAL DE ASISTENCIA DEL GRUPO ====== */
+    var datosHistorialGrupo = [];
+
+    async function cargarHistorialGrupo() {
+      var aviso = document.getElementById('aviso_historial');
+      var contenedor = document.getElementById('historial_grupo');
+      var desde = document.getElementById('hist_desde').value;
+      var hasta = document.getElementById('hist_hasta').value;
+      aviso.className = 'aviso info';
+      aviso.textContent = 'CARGANDO HISTORIAL...';
+      contenedor.innerHTML = '';
+      datosHistorialGrupo = [];
+      try {
+        var resp = await fetch(SCRIPT_URL + '?' + new URLSearchParams({
+          accion: 'asistencias_grado',
+          grado: config.asesoria
+        }).toString());
+        var res = await resp.json();
+        if (!res.ok) throw new Error('error');
+        var lista = res.asistencias || [];
+        if (desde) lista = lista.filter(function (r) { return r.fecha >= desde; });
+        if (hasta) lista = lista.filter(function (r) { return r.fecha <= hasta; });
+        if (lista.length === 0) {
+          aviso.className = 'aviso info';
+          aviso.textContent = 'NO HAY REGISTROS DE ASISTENCIA EN EL RANGO SELECCIONADO.';
+          return;
+        }
+        aviso.className = 'aviso';
+        aviso.textContent = '';
+        datosHistorialGrupo = lista;
+        var porFecha = {};
+        lista.forEach(function (r) {
+          if (!porFecha[r.fecha]) porFecha[r.fecha] = [];
+          porFecha[r.fecha].push(r);
+        });
+        var html = '<p class="leyenda" style="margin:0 0 8px"><b>' + lista.length + '</b> registros — ' + config.asesoria + '</p>';
+        Object.keys(porFecha).sort().reverse().forEach(function (fecha) {
+          html += '<div style="background:#D9E7EF;padding:6px 10px;border-radius:8px;margin:8px 0;font-size:12px;font-weight:700;color:var(--color-primario)">' +
+            fechaBonita(fecha) + ' (' + porFecha[fecha].length + ' registros)</div>';
+          html += '<table class="tabla-historial"><tr><th>ALUMNO</th><th>ESTADO</th></tr>';
+          porFecha[fecha].sort(function (a, b) { return (a.nombre || '').localeCompare(b.nombre || '', 'es'); });
+          porFecha[fecha].forEach(function (r) {
+            html += '<tr><td><b>' + r.codigo + '</b> ' + r.nombre + '</td>' +
+              '<td><span class="chip ' + claseEstado(r.estado) + '">' + r.estado + '</span></td></tr>';
+          });
+          html += '</table>';
+        });
+        contenedor.innerHTML = html;
+      } catch (e) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'NO SE PUDO CARGAR EL HISTORIAL. VERIFICA TU INTERNET.';
+      }
+    }
+
+    document.getElementById('btn_ver_historial_grupo').addEventListener('click', cargarHistorialGrupo);
+
+    document.getElementById('btn_historial_pdf').addEventListener('click', function () {
+      var aviso = document.getElementById('aviso_historial');
+      if (datosHistorialGrupo.length === 0) {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'PRIMERO CARGA EL HISTORIAL CON "VER HISTORIAL".';
+        return;
+      }
+      var desde = document.getElementById('hist_desde').value;
+      var hasta = document.getElementById('hist_hasta').value;
+      var fechaRep = fechaBonita(new Date().toISOString().slice(0, 10));
+      var rangoTxt = (desde || hasta)
+        ? 'De ' + (desde ? fechaBonita(desde) : 'INICIO') + ' a ' + (hasta ? fechaBonita(hasta) : 'HOY')
+        : 'Ciclo escolar completo';
+
+      var porFecha = {};
+      datosHistorialGrupo.forEach(function (r) {
+        if (!porFecha[r.fecha]) porFecha[r.fecha] = [];
+        porFecha[r.fecha].push(r);
+      });
+
+      var filasHtml = '';
+      Object.keys(porFecha).sort().reverse().forEach(function (fecha) {
+        filasHtml += '<tr style="background:#D9E7EF"><td colspan="3" style="font-weight:700;color:#2F77A0">' +
+          fechaBonita(fecha) + '</td></tr>';
+        porFecha[fecha].sort(function (a, b) { return (a.nombre || '').localeCompare(b.nombre || '', 'es'); });
+        porFecha[fecha].forEach(function (r) {
+          filasHtml += '<tr><td>' + r.codigo + '</td><td>' + r.nombre + '</td>' +
+            '<td style="font-weight:700">' + r.estado + '</td></tr>';
+        });
+      });
+
+      var htmlPdf =
+        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+        '<title>Historial de Asistencia - ' + config.asesoria + '</title>' +
+        '<style>' +
+        'body{font-family:Arial,sans-serif;margin:30px;color:#3A444D}' +
+        'h1{font-size:18px;color:#2F77A0;margin-bottom:4px}' +
+        '.info{font-size:12px;color:#7a8a9a;margin-bottom:16px}' +
+        'table{width:100%;border-collapse:collapse;font-size:12px}' +
+        'th{background:#2F77A0;color:#fff;padding:8px;text-align:left}' +
+        'td{padding:6px 8px;border-bottom:1px solid #eef3f8}' +
+        'tr:nth-child(even){background:#f6f9fb}' +
+        '.pie{margin-top:20px;font-size:10px;color:#aaa;text-align:center}' +
+        '</style></head><body>' +
+        '<h1>HISTORIAL DE ASISTENCIA</h1>' +
+        '<div class="info">Grupo: <b>' + config.asesoria + '</b> | Maestro: <b>' + maestroActual.nombre + '</b><br>' +
+        'Rango: ' + rangoTxt + ' | Total: ' + datosHistorialGrupo.length + ' registros<br>' +
+        'Generado: ' + fechaRep + '</div>' +
+        '<table><tr><th>CÓDIGO</th><th>ALUMNO</th><th>ESTADO</th></tr>' +
+        filasHtml + '</table>' +
+        '<div class="pie">CED - Control Escolar Digital</div>' +
+        '</body></html>';
+
+      var blob = new Blob([htmlPdf], { type: 'text/html;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var ventana = window.open(url, '_blank');
+      if (ventana) {
+        setTimeout(function () { ventana.print(); }, 600);
+      } else {
+        aviso.className = 'aviso error';
+        aviso.textContent = 'PERMITE LAS VENTANAS EMERGENTES PARA GENERAR EL PDF.';
+      }
     });
 
     /* ====== EVALUACIÓN CONTINUA ====== */
