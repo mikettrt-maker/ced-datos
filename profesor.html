@@ -1298,21 +1298,30 @@
         return;
       }
       var previas = Object.keys(notasPreviasAnecdotico);
-      if (previas.length > 0) {
+      var yaCapturado = previas.length > 0;
+      if (yaCapturado) {
+        html += '<p class="leyenda" style="background:#fdecea;color:var(--error);border:1.5px solid var(--error);border-radius:8px;padding:10px;margin-bottom:10px">' +
+          'EL ANECDÓTICO DE ESTE DÍA YA FUE CAPTURADO (<b>' + previas.length + '</b> de ' +
+          anecdoticoAlumnos.length + ' alumnos). CONTACTA A DIRECCIÓN SI NECESITAS CORREGIR.</p>';
+      } else if (previas.length > 0) {
         html += '<p class="leyenda">Ya hay notas guardadas para este grupo hoy (<b>' + previas.length + '</b> de ' +
           anecdoticoAlumnos.length + ' alumnos). Se sobreescribir\u00e1n al guardar.</p>';
       }
       for (var i = 0; i < anecdoticoAlumnos.length; i++) {
         var a = anecdoticoAlumnos[i];
         var val = notasPreviasAnecdotico[a.codigo] || '';
-        html += '<div class="alumno" data-codigo="' + a.codigo + '">' +
+        html += '<div class="alumno" data-codigo="' + a.codigo + '"' + (yaCapturado ? ' style="opacity:0.7"' : '') + '>' +
           '<div class="info"><div class="codigo">' + a.codigo + '</div>' +
           '<div class="nombre">' + a.nombre + '</div></div>' +
           '<div class="campo-nota"><textarea class="nota-texto" rows="2" maxlength="500" ' +
+          (yaCapturado ? 'readonly ' : '') +
           'placeholder="Escribe una nota sobre este alumno...">' + val + '</textarea></div></div>';
       }
       contenedor.innerHTML = html;
-      document.getElementById('btn_guardar_calificaciones').disabled = false;
+      document.getElementById('btn_guardar_calificaciones').disabled = yaCapturado;
+      document.getElementById('btn_guardar_calificaciones').textContent = yaCapturado
+        ? 'YA SE CAPTURÓ HOY'
+        : 'GUARDAR ANECDÓTICO';
     }
 
     document.getElementById('btn_guardar_calificaciones').addEventListener('click', async function () {
@@ -2003,12 +2012,26 @@
         contenedor.appendChild(fila);
       });
       const previo = Object.keys(estadosActuales);
-      if (previo.length > 0) {
+      const yaCapturado = previo.length > 0;
+      if (yaCapturado) {
         contenedor.insertAdjacentHTML('afterbegin',
-          '<p class="leyenda">Este día ya tiene registros guardados: <b>' + previo.length + '</b> de ' +
-          alumnosActuales.length + ' alumnos. Ajusta y vuelve a guardar si es necesario.</p>');
+          '<p class="leyenda" style="background:#fdecea;color:var(--error);border:1.5px solid var(--error);border-radius:8px;padding:10px;margin-bottom:10px">' +
+          'LA ASISTENCIA DE ESTE DÍA YA FUE CAPTURADA (<b>' + previo.length + '</b> de ' +
+          alumnosActuales.length + ' alumnos). CONTACTA A DIRECCIÓN SI NECESITAS CORREGIR.</p>');
+        document.getElementById('btn_guardar').disabled = true;
+        document.getElementById('btn_guardar').textContent = 'YA SE CAPTURÓ HOY';
+        contenedor.querySelectorAll('.opciones button').forEach(function (b) {
+          b.disabled = true;
+          b.style.opacity = '0.5';
+          b.style.cursor = 'not-allowed';
+        });
+        contenedor.querySelectorAll('.alumno').forEach(function (a) {
+          a.style.opacity = '0.7';
+        });
+      } else {
+        document.getElementById('btn_guardar').disabled = false;
+        document.getElementById('btn_guardar').textContent = 'GUARDAR ASISTENCIA';
       }
-      document.getElementById('btn_guardar').disabled = false;
     }
 
     async function guardarAsistencia() {
