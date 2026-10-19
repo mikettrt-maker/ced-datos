@@ -913,17 +913,29 @@
       const aviso = document.getElementById('aviso_monitoreo');
       const contenedor = document.getElementById('contenedor_monitoreo');
       aviso.className = 'aviso info';
-      aviso.textContent = 'VERIFICANDO...';
+      aviso.textContent = 'VERIFICANDO... (puede tardar hasta 30 segundos la primera vez)';
       contenedor.innerHTML = '';
       const hoy = new Date();
       const mes = String(hoy.getMonth() + 1).padStart(2, '0');
       const dia = String(hoy.getDate()).padStart(2, '0');
       const fechaHoy = hoy.getFullYear() + '-' + mes + '-' + dia;
 
+      function fetchConTimeout(url) {
+        var controller = new AbortController();
+        var timeout = setTimeout(function () { controller.abort(); }, 30000);
+        return fetch(url, { signal: controller.signal })
+          .then(function (r) { clearTimeout(timeout); return r.json(); })
+          .catch(function (e) {
+            clearTimeout(timeout);
+            if (e.name === 'AbortError') throw new Error('timeout');
+            throw e;
+          });
+      }
+
       Promise.all([
-        fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'config_todos' }).toString()).then(function (r) { return r.json(); }),
-        fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'asistencias_hoy', fecha: fechaHoy }).toString()).then(function (r) { return r.json(); }),
-        fetch(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'anecdotico_hoy', fecha: fechaHoy }).toString()).then(function (r) { return r.json(); })
+        fetchConTimeout(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'config_todos' }).toString()),
+        fetchConTimeout(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'asistencias_hoy', fecha: fechaHoy }).toString()),
+        fetchConTimeout(SCRIPT_URL + '?' + new URLSearchParams({ accion: 'anecdotico_hoy', fecha: fechaHoy }).toString())
       ]).then(function (resultados) {
         const configRes = resultados[0];
         const asistRes = resultados[1];
@@ -983,9 +995,13 @@
         aviso.textContent = sinAsistencia.length === 0 && sinAnecdotico.length === 0
           ? 'TODOS LOS PROFESORES HAN REGISTRADO ASISTENCIA Y ANECDÓTICO HOY.'
           : 'FALTAN REGISTROS POR COMPLETAR.';
-      }).catch(function () {
+      }).catch(function (e) {
         aviso.className = 'aviso error';
-        aviso.textContent = 'NO SE PUDO VERIFICAR. VERIFICA TU INTERNET.';
+        if (e.message === 'timeout') {
+          aviso.textContent = 'EL SERVIDOR TARDÓ MUCHO EN RESPONDER. LA PRIMERA VEZ PUEDE TARDAR HASTA 30 SEGUNDOS. INTENTA DE NUEVO.';
+        } else {
+          aviso.textContent = 'NO SE PUDO VERIFICAR. VERIFICA TU INTERNET O QUE EL CÓDIGO DEL BACKEND ESTÉ ACTUALIZADO EN GOOGLE APPS SCRIPT.';
+        }
       });
     }
 
