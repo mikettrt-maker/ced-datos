@@ -701,7 +701,7 @@
       <h1 id="titulo_barra">PORTAL DEL PROFESOR</h1>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:11px;color:#9aa8b6;font-weight:700">V1.2</span>
+      <span style="font-size:11px;color:#9aa8b6;font-weight:700">V1.3</span>
       <button type="button" id="btn_salir">SALIR</button>
     </div>
   </header>
@@ -1372,6 +1372,7 @@
         return;
       }
       const boton = document.getElementById('btn_guardar_calificaciones');
+      if (boton.textContent === 'YA SE CAPTURÓ HOY') return;
       boton.disabled = true;
       boton.textContent = 'GUARDANDO...';
       try {
@@ -1388,17 +1389,18 @@
         const resultado = await respuesta.json();
         if (resultado.ok) {
           aviso.className = 'aviso exito';
-          aviso.textContent = 'ANECDÓTICO GUARDADO PARA ' + grado + ' — ' + fechaBonita(fecha) + ' (' + registros.length + ' notas).';
+          aviso.textContent = 'ANECDÓTICO GUARDADO PARA ' + grado + ' — ' + fechaBonita(fecha) + ' (' + registros.length + ' notas). YA NO SE PUEDE MODIFICAR.';
           await cargarNotasPreviasAnecdotico(grado, fecha);
           pintarAlumnosAnecdotico();
         } else {
           aviso.className = 'aviso error';
           aviso.textContent = 'OCURRIÓ UN PROBLEMA AL GUARDAR. INTENTA DE NUEVO.';
+          boton.disabled = false;
+          boton.textContent = 'GUARDAR ANECDÓTICO';
         }
       } catch (e) {
         aviso.className = 'aviso error';
         aviso.textContent = 'SIN CONEXIÓN. NO SE GUARDÓ. VERIFICA TU INTERNET.';
-      } finally {
         boton.disabled = false;
         boton.textContent = 'GUARDAR ANECDÓTICO';
       }
@@ -2184,6 +2186,7 @@
       const iso = document.getElementById('fecha_asistencia').value;
       if (!iso) return;
       const boton = document.getElementById('btn_guardar');
+      if (boton.textContent === 'YA SE CAPTURÓ HOY') return;
       boton.disabled = true;
       boton.textContent = 'GUARDANDO...';
       const registros = alumnosActuales.map(function (alumno) {
@@ -2208,18 +2211,39 @@
         const aviso = document.getElementById('aviso_asistencia');
         if (resultado.ok) {
           aviso.className = 'aviso exito';
-          aviso.textContent = 'ASISTENCIA GUARDADA CORRECTAMENTE (' + iso + ').';
+          aviso.textContent = 'ASISTENCIA GUARDADA CORRECTAMENTE (' + iso + '). YA NO SE PUEDE MODIFICAR.';
+          bloquearAsistenciaGuardada();
         } else {
           aviso.className = 'aviso error';
           aviso.textContent = 'OCURRIÓ UN PROBLEMA. INTENTA DE NUEVO.';
+          boton.disabled = false;
+          boton.textContent = 'GUARDAR ASISTENCIA';
         }
       } catch (e) {
         const aviso = document.getElementById('aviso_asistencia');
         aviso.className = 'aviso error';
         aviso.textContent = 'NO HAY CONEXIÓN. VERIFICA TU INTERNET.';
-      } finally {
         boton.disabled = false;
         boton.textContent = 'GUARDAR ASISTENCIA';
+      }
+    }
+
+    function bloquearAsistenciaGuardada() {
+      const boton = document.getElementById('btn_guardar');
+      boton.disabled = true;
+      boton.textContent = 'YA SE CAPTURÓ HOY';
+      document.querySelectorAll('#contenedor_alumnos .opciones button').forEach(function (b) {
+        b.disabled = true;
+        b.style.opacity = '0.5';
+        b.style.cursor = 'not-allowed';
+      });
+      document.querySelectorAll('#contenedor_alumnos .alumno').forEach(function (a) {
+        a.style.opacity = '0.7';
+      });
+      if (!document.getElementById('aviso_asistencia').textContent.includes('YA SE CAPTURÓ')) {
+        document.getElementById('aviso_asistencia').insertAdjacentHTML('beforebegin',
+          '<p class="leyenda" style="background:#fdecea;color:var(--error);border:1.5px solid var(--error);border-radius:8px;padding:10px;margin-bottom:10px">' +
+          'LA ASISTENCIA DE ESTE DÍA YA FUE CAPTURADA. CONTACTA A DIRECCIÓN SI NECESITAS CORREGIR.</p>');
       }
     }
 
