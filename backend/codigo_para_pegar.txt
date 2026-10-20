@@ -361,14 +361,24 @@ function normalizarFechaISO(valor) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
     return texto;
   }
+  const m = texto.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (m) {
+    const d = Number(m[1]);
+    const mes = Number(m[2]);
+    const a = Number(m[3]);
+    const f = new Date(a, mes - 1, d);
+    if (!isNaN(f.getTime()) && f.getFullYear() === a && f.getMonth() === mes - 1 && f.getDate() === d) {
+      return a + '-' + String(mes).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    }
+  }
   const f = new Date(texto);
   if (isNaN(f.getTime())) {
     return texto;
   }
   const a = f.getFullYear();
-  const m = String(f.getMonth() + 1).padStart(2, '0');
-  const d = String(f.getDate()).padStart(2, '0');
-  return a + '-' + m + '-' + d;
+  const mm = String(f.getMonth() + 1).padStart(2, '0');
+  const dd = String(f.getDate()).padStart(2, '0');
+  return a + '-' + mm + '-' + dd;
 }
 
 function guardarCalificacion(datos) {
