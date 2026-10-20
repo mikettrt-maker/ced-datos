@@ -701,7 +701,7 @@
       <h1 id="titulo_barra">PORTAL DEL PROFESOR</h1>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:11px;color:#9aa8b6;font-weight:700">V1.3</span>
+      <span style="font-size:11px;color:#9aa8b6;font-weight:700">V1.4</span>
       <button type="button" id="btn_salir">SALIR</button>
     </div>
   </header>
@@ -1394,7 +1394,11 @@
           pintarAlumnosAnecdotico();
         } else {
           aviso.className = 'aviso error';
-          aviso.textContent = 'OCURRIÓ UN PROBLEMA AL GUARDAR. INTENTA DE NUEVO.';
+          if (resultado.error === 'YA_EXISTE_ANECDOTICO') {
+            aviso.textContent = 'YA EXISTE UN ANECDÓTICO PARA ESTE GRUPO EN ESTA FECHA. NO SE PUEDE VOLVER A GUARDAR.';
+          } else {
+            aviso.textContent = 'OCURRIÓ UN PROBLEMA AL GUARDAR. INTENTA DE NUEVO.';
+          }
           boton.disabled = false;
           boton.textContent = 'GUARDAR ANECDÓTICO';
         }

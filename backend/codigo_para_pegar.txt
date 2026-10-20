@@ -485,6 +485,18 @@ function guardarAnecdotico(datos) {
   const fecha = normalizarFechaISO(datos.fecha);
   const grado = String(datos.grado || '');
   const celdas = hoja.getDataRange().getValues();
+  const yaExiste = [];
+  for (let fila = 1; fila < celdas.length; fila++) {
+    if (String(celdas[fila][0]) === fecha &&
+      String(celdas[fila][3]) === grado &&
+      String(celdas[fila][4]) === 'ANECDÓTICO') {
+      yaExiste.push(fila + 1);
+      break;
+    }
+  }
+  if (yaExiste.length > 0) {
+    return respuesta({ ok: false, error: 'YA_EXISTE_ANECDOTICO' });
+  }
   const filasABorrar = [];
   for (let fila = celdas.length - 1; fila > 0; fila--) {
     if (String(celdas[fila][0]) === fecha &&
