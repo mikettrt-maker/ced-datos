@@ -701,7 +701,7 @@
       <h1 id="titulo_barra">PORTAL DEL PROFESOR</h1>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:11px;color:#9aa8b6;font-weight:700">V1.4</span>
+      <span style="font-size:11px;color:#9aa8b6;font-weight:700">V1.5</span>
       <button type="button" id="btn_salir">SALIR</button>
     </div>
   </header>
@@ -1305,13 +1305,17 @@
         const respuesta = await fetch(SCRIPT_URL + '?' + parametros.toString());
         const resultado = await respuesta.json();
         notasPreviasAnecdotico = {};
-        if (resultado.ok && resultado.registros) {
+        if (!resultado.ok) throw new Error(resultado.error || 'error');
+        if (resultado.registros) {
           resultado.registros.forEach(function (r) {
             notasPreviasAnecdotico[r.codigo] = r.nota;
           });
         }
       } catch (e) {
         notasPreviasAnecdotico = {};
+        const aviso = document.getElementById('aviso_calificacion');
+        aviso.className = 'aviso error';
+        aviso.textContent = 'NO SE PUDO VERIFICAR SI YA EXISTE ANECDÓTICO. VERIFICA TU INTERNET.';
       }
     }
 

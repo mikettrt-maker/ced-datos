@@ -560,7 +560,14 @@ function leerAnecdoticoDia(grado, fecha) {
   const celdas = hoja.getDataRange().getValues();
   const lista = [];
   for (let fila = 1; fila < celdas.length; fila++) {
-    if (String(celdas[fila][0]) === fechaISO &&
+    const valorCelda = celdas[fila][0];
+    let fechaCelda = '';
+    if (valorCelda instanceof Date) {
+      fechaCelda = valorCelda.getFullYear() + '-' + String(valorCelda.getMonth() + 1).padStart(2, '0') + '-' + String(valorCelda.getDate()).padStart(2, '0');
+    } else {
+      fechaCelda = normalizarFechaISO(String(valorCelda || ''));
+    }
+    if (fechaCelda === fechaISO &&
       String(celdas[fila][3]) === grado &&
       String(celdas[fila][4]) === 'ANECDÓTICO') {
       lista.push({
